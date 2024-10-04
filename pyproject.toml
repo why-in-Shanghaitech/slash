@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slash"
+version = "v0.0.1.dev1"
+dependencies = [
+    'requests',
+    'tqdm',
+    'pyyaml',
+]
+requires-python = ">=3.8"
+description = "SLURM Link Assistant Service Hub (SLASH) is a submodule for the python package sapp, dealing with the Internect connection problems."
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: Linux",
+]
+
+[project.urls]
+Homepage = "https://github.com/why-in-Shanghaitech/slash"
+Documentation = "https://github.com/why-in-Shanghaitech/slash/blob/master/README.md"
+Repository = "https://github.com/why-in-Shanghaitech/slash.git"
+"Bug Tracker" = "https://github.com/why-in-Shanghaitech/slash/issues"
+
+[project.scripts]
+slash = "slash:main"
