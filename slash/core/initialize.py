@@ -71,6 +71,9 @@ def initialize(slash_exe: Path) -> bool:
         rc_content = rc_content.replace(replace_str, slash_initialize_content)
     else:
         rc_content += f"\n{slash_initialize_content}\n"
+    
+    with open(user_rc_path, "w") as fh:
+        fh.write(rc_content)
 
     is_modified = rc_content != rc_original_content
 
