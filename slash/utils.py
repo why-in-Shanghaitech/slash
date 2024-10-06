@@ -1,13 +1,95 @@
-from typing import List, Union
+from typing import List, Union, Iterable
 from pathlib import Path
 import requests
+import socket
 import tempfile
 import subprocess
 import os
+import filelock
+import random
+import time
 from tqdm import tqdm
+from textwrap import dedent
 import logging
 
 logger = logging.getLogger("slash")
+
+
+class FreePort:
+    def __init__(self, ports: Iterable = None, timeout: int = -1) -> None:
+        """
+        Bind to a free port in the given range.
+        This is actually a file lock with a test bind to a port. The port is immediately released after the test.
+
+        Arguments:
+            ports (Iterable): A range of ports to choose from. The object should have __len__ and __getitem__ methods.  Default is range(20000, 30000).
+            timeout (int): Wait up to this many seconds to acquire a port. Default is -1 (infinite).
+        """
+        self.timeout = timeout
+        self.ports: Iterable = ports
+        self.port: Union[int, None] = None
+
+        if self.ports is None:
+            self.ports = range(20000, 30000)
+    
+    @staticmethod
+    def is_free(port: int) -> bool:
+        """
+        Check if a port is free.
+        """
+        try:
+            sock = socket.socket()
+            sock.bind(('', port))
+            sock.close()
+            return True
+        except (PermissionError, OSError):
+            return False
+
+    def acquire(self) -> 'FreePort':
+        """
+        Acquire a free port.
+        """
+        start_time = time.time()
+        while self.timeout < 0 or time.time() - start_time < self.timeout:
+            port = random.choice(self.ports)
+
+            try:
+                lock = filelock.SoftFileLock(f'/tmp/slash_port_{port}.lock')
+                lock.acquire(blocking=False)
+            except filelock.Timeout:
+                continue
+
+            if self.is_free(port):
+                self.port = port
+                self.lock = lock
+                return self
+            else:
+                lock.release()
+                time.sleep(0.01)
+        
+        raise TimeoutError('No free port available.')
+    
+    def release(self) -> None:
+        """
+        Release the port.
+        """
+        if self.port is None:
+            return
+
+        self.lock.release()
+        self.port = None
+
+    def __enter__(self) -> 'FreePort':
+        return self.acquire()
+    
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.release()
+
+
+
+def dals(string):
+    """dedent and left-strip"""
+    return dedent(string).lstrip()
 
 def download_file(
     urls: Union[str, List[str]],
