@@ -120,17 +120,22 @@ class Service:
 
             # wait for the service to start
             retries = 30
-            while not service.is_operational():
-                retries -= 1
-                if retries > 0:
-                    logger.info(f"Service not established yet. Retrying... ({retries} remaining)")
-                    time.sleep(5)
-                else:
-                    logger.error("Service establish failed.")
-                    service.stop()
-                    exit(1)
+            interval = 5
+            with logger.status("Waiting the service to be established...") as status:
+                cnt = 0
+                while not service.is_operational():
+                    cnt += 1
+                    if cnt < retries:
+                        status.update(f"Waiting the service to be established ({cnt}/{retries})...")
+                        time.sleep(interval) # wait for the service to start
+                    else:
+                        logger.error("Service establish failed.")
+                        service.stop()
+                        exit(1)
+            
+            # service established
             logger.info("Service established.")
-            time.sleep(5) # wait for the service to be fully operational
+            time.sleep(interval) # wait for the service to be fully operational
 
             return service
     

@@ -15,13 +15,21 @@ from rich.console import Console
 class Logger:
     def __init__(self) -> None:
         self.console = Console(stderr=True)
-        self.console_err = Console(stderr=True, style='bold red')
+    
+    def debug(self, msg: str) -> None:
+        self.console.log("[blue]DEBUG[/blue] |", msg)
 
     def info(self, msg: str) -> None:
-        self.console.log(msg)
+        self.console.log("[green]INFO[/green] |", msg)
+
+    def warn(self, msg: str) -> None:
+        self.console.log("[yellow]WARN[/yellow] |", msg)
 
     def error(self, msg: str) -> None:
-        self.console_err.log(msg)
+        self.console.log("[red]ERRO[/red] |", msg)
+    
+    def status(self, *args, **kwargs):
+        return self.console.status(*args, **kwargs)
 
 logger = Logger()
 
