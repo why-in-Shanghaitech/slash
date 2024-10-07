@@ -9,9 +9,8 @@ import tarfile
 import subprocess
 import slash.utils as utils
 from slash.core.constants import WORK_DIR, ENVS_DIR
-import logging
 
-logger = logging.getLogger("slash")
+logger = utils.logger
 
 def convert(sub: Union[str, Path], tgt: Path) -> Path:
     """

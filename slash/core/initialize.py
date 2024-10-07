@@ -4,9 +4,7 @@ import sys
 from pathlib import Path
 import slash.utils as utils
 
-import logging
-
-logger = logging.getLogger("slash")
+logger = utils.logger
 
 
 def initialize(slash_exe: Path) -> bool:

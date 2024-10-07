@@ -14,9 +14,8 @@ from slash.core import (
     Env,
     EnvsManager
 )
-import logging
 
-logger = logging.getLogger("slash")
+logger = utils.logger
 
 def get_executable() -> Path:
     """

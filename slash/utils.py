@@ -10,9 +10,20 @@ import random
 import time
 from tqdm import tqdm
 from textwrap import dedent
-import logging
+from rich.console import Console
 
-logger = logging.getLogger("slash")
+class Logger:
+    def __init__(self) -> None:
+        self.console = Console(stderr=True)
+        self.console_err = Console(stderr=True, style='bold red')
+
+    def info(self, msg: str) -> None:
+        self.console.log(msg)
+
+    def error(self, msg: str) -> None:
+        self.console_err.log(msg)
+
+logger = Logger()
 
 
 class FreePort:

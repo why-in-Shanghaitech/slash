@@ -2,10 +2,6 @@ import os
 import warnings
 from slash.core import EnvsManager, ServiceManager, Service
 
-import logging
-
-logger = logging.getLogger("slash")
-
 class Slash:
     def __init__(self, env_name: str = 'default') -> None:
         self.envs_manager = EnvsManager()
