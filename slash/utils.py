@@ -8,7 +8,6 @@ import os
 import filelock
 import random
 import time
-from tqdm import tqdm
 from textwrap import dedent
 from rich.console import Console
 from rich.progress import (
