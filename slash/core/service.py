@@ -23,7 +23,7 @@ def get_executable() -> Path:
     Return the path to the executable. Download if not found.
     """
 
-    # 1. prepare mihomo executable
+    # prepare mihomo executable
     exec_path = WORK_DIR / "mihomo-v1.18.1"
 
     if not exec_path.exists(): # download and cache

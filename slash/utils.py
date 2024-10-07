@@ -1,4 +1,4 @@
-from typing import List, Union, Iterable
+from typing import List, Tuple, Union, Iterable
 from pathlib import Path
 import requests
 import socket
@@ -95,7 +95,7 @@ def download_file(
     urls: Union[str, List[str]],
     path: Union[str, Path],
     desc: str = None,
-    timeout: int = 15,
+    timeout: Union[int, Tuple[int, int]] = (15, 180),
     write_callback = None,
 ):
     """
@@ -147,4 +147,3 @@ def runbg(command: List[str]) -> int:
         preexec_fn=os.setpgrp
     )
     return p.pid
-    

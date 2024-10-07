@@ -5,11 +5,83 @@ import time
 import tempfile
 import yaml
 import shutil
+import tarfile
+import subprocess
 import slash.utils as utils
-from slash.core.constants import ENVS_DIR
+from slash.core.constants import WORK_DIR, ENVS_DIR
 import logging
 
 logger = logging.getLogger("slash")
+
+def convert(sub: Union[str, Path], tgt: Path) -> Path:
+    """
+    Convert the subscription to a config file.
+
+    Arguments:
+        sub: str
+            The subscription URL, or path to the config file.
+        tgt: Path
+            The target path to save the converted subscription.
+    """
+
+    # prepare subconverter
+    tar_path = WORK_DIR / "subconverter.tar.gz"
+
+    if not tar_path.exists(): # download and cache
+
+        logger.info("Preparing subconverter. Please wait, it could take a few minutes...")
+        WORK_DIR.mkdir(parents=True, exist_ok=True)
+
+        # Use the release
+        utils.download_file(
+            urls = [
+                "https://github.com/tindy2013/subconverter/releases/download/v0.9.0/subconverter_linux64.tar.gz",
+                "https://ghproxy.net/https://github.com/tindy2013/subconverter/releases/download/v0.9.0/subconverter_linux64.tar.gz",
+            ],
+            path = tar_path,
+            desc = "Download Tarball"
+        )
+    
+    # process in the temp directory
+    with tempfile.TemporaryDirectory() as tmpdir:
+
+        # extract the tarball
+        with tarfile.open(tar_path, "r:gz") as tar:
+            tar.extractall(tmpdir, filter=lambda *args: args[0])
+        
+        # find the executable
+        work_dir = Path(tmpdir) / "subconverter"
+        executable = work_dir / "subconverter"
+
+        # check if the executable exists
+        if not executable.exists():
+            raise FileNotFoundError("Subconverter executable not found.")
+        
+        # setup the config
+        config = work_dir / "generate.ini"
+        with open(config, "w") as f:
+            f.write(
+                utils.dals(
+                    """
+                    [test]
+                    path=output.yaml
+                    target=clash
+                    ver=4
+                    url=%(sub)s
+                    """ % {"sub": str(sub)}
+                )
+            )
+        
+        # run the executable
+        result = subprocess.run([str(executable), "-g"], cwd=work_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if result.returncode != 0:
+            raise ValueError("Failed to convert the subscription.")
+        
+        # move the file
+        shutil.move(work_dir / "output.yaml", tgt)
+    
+    return tgt
 
 class Env:
     def __init__(
@@ -83,8 +155,11 @@ class Env:
                     write_callback = write_callback
                 )
 
-                # move the file
-                shutil.move(self.workdir / "config.yaml.tmp", self.workdir / "config.yaml")
+                convert(self.workdir / "config.yaml.tmp", self.workdir / "config.yaml")
+
+                # remove the temp file
+                (self.workdir / "config.yaml.tmp").unlink()
+
             else:
                 # create an empty subscription file
                 with open(self.workdir / "config.yaml", 'w') as f:
@@ -167,18 +242,19 @@ class EnvsManager:
             self.create_env("base")
         if "default" not in self.envs:
             self.create_env("default", [
-                "https://ghproxy.net/https://raw.githubusercontent.com/aiboboxx/clashfree/main/clash.yml",
-                "https://cf.ghproxy.cc/https://raw.githubusercontent.com/aiboboxx/clashfree/main/clash.yml",
-                "https://jsd.cdn.zzko.cn/gh/aiboboxx/clashfree@main/clash.yml",
-                "https://jsd.onmicrosoft.cn/gh/aiboboxx/clashfree@main/clash.yml",
-                "https://fastraw.ixnic.net/aiboboxx/clashfree/main/clash.yml",
-                "https://github.moeyy.xyz/https://raw.githubusercontent.com/aiboboxx/clashfree/main/clash.yml",
-                "https://mirror.ghproxy.com/https://raw.githubusercontent.com/aiboboxx/clashfree/main/clash.yml",
-                "https://cdn.jsdelivr.us/gh/aiboboxx/clashfree@main/clash.yml",
-                "https://fastly.jsdelivr.net/gh/aiboboxx/clashfree@main/clash.yml",
-                "https://gcore.jsdelivr.net/gh/aiboboxx/clashfree@main/clash.yml",
-                "https://raw.cachefly.998111.xyz/aiboboxx/clashfree/main/clash.yml",
-                "https://raw.githubusercontent.com/aiboboxx/clashfree/main/clash.yml",
+                "https://proxy.v2gh.com/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
+                "https://ghproxy.net/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
+                "https://cf.ghproxy.cc/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
+                "https://jsd.cdn.zzko.cn/gh/Pawdroid/Free-servers@main/sub",
+                "https://jsd.onmicrosoft.cn/gh/Pawdroid/Free-servers@main/sub",
+                "https://fastraw.ixnic.net/Pawdroid/Free-servers/main/sub",
+                "https://github.moeyy.xyz/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
+                "https://mirror.ghproxy.com/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
+                "https://cdn.jsdelivr.us/gh/Pawdroid/Free-servers@main/sub",
+                "https://fastly.jsdelivr.net/gh/Pawdroid/Free-servers@main/sub",
+                "https://gcore.jsdelivr.net/gh/Pawdroid/Free-servers@main/sub",
+                "https://raw.cachefly.998111.xyz/Pawdroid/Free-servers/main/sub",
+                "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
             ])
 
     def create_env(self, *args, **kwargs) -> Env:
