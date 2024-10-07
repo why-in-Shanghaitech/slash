@@ -121,7 +121,7 @@ def dals(string):
 def download_file(
     urls: Union[str, List[str]],
     path: Union[str, Path],
-    desc: str = None,
+    desc: str = "Downloading...",
     timeout: Union[int, Tuple[int, int]] = (15, 180),
     write_callback = None,
 ):
