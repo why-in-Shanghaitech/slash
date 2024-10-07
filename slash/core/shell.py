@@ -68,9 +68,9 @@ def activate(env_name: str, port: int) -> str:
     prompt_modifier = "/{env_name}\ ".format(env_name=env_name)
     commands = [
         f'export http_proxy="http://127.0.0.1:{port}"',
-        f'export https_proxy="http://127.0.0.1:{port}"'
+        f'export https_proxy="http://127.0.0.1:{port}"',
         f'export SLASH_ENV={env_name}',
-        f'export PS1="{prompt_modifier}$PS1"'
+        f'export PS1="{prompt_modifier}$PS1"',
     ]
     
     return "\n".join(commands)
@@ -89,7 +89,7 @@ def deactivate() -> str:
         f'unset http_proxy',
         f'unset https_proxy',
         f'unset SLASH_ENV',
-        f'export PS1="{ps1}"'
+        f'export PS1="{ps1}"',
     ]
     
     return "\n".join(commands)
