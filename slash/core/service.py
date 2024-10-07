@@ -38,7 +38,7 @@ def get_executable() -> Path:
                 "https://gitee.com/jiang-zhida/mihomo/releases/download/v1.16.0/clash.meta-linux-amd64-v1.16.0.gz" # the version on gitee is older
             ],
             path = exec_path,
-            desc = "Download Binary",
+            desc = "Downloading binary...",
             write_callback = lambda src, tgt: tgt.write(gzip.decompress(src.read()))
         )
         

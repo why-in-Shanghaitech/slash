@@ -11,6 +11,14 @@ import time
 from tqdm import tqdm
 from textwrap import dedent
 from rich.console import Console
+from rich.progress import (
+    BarColumn,
+    DownloadColumn,
+    Progress,
+    TextColumn,
+    TimeRemainingColumn,
+    TransferSpeedColumn
+)
 
 class Logger:
     def __init__(self) -> None:
@@ -123,6 +131,24 @@ def download_file(
 
     write_callback should be a function with the source and target file descriptors as input.
     """
+    progress = Progress(
+        TextColumn("[bold blue]{task.fields[filename]}", justify="right"),
+        TextColumn(f"[bold green]({{task.fields[idx]}} / {len(urls)})[/bold green]", justify="right"),
+        BarColumn(bar_width=None),
+        "[progress.percentage]{task.percentage:>3.1f}%",
+        "•",
+        DownloadColumn(),
+        "•",
+        TransferSpeedColumn(),
+        "•",
+        TimeRemainingColumn(),
+
+        # do not leave the progress bar hanging
+        transient=True,
+        # use logger console
+        console=logger.console
+    )
+
     if not isinstance(urls, list):
         urls = [urls]
     
@@ -132,28 +158,39 @@ def download_file(
     if path.exists():
         return
 
-    for idx, url in enumerate(urls):
-        try:
-            logger.info(f"Attempt to download {url} to {path}, waiting up to {timeout} seconds...")
-            r = requests.get(url, stream = True, timeout=timeout)
-            total = int(r.headers.get('Content-Length', 0)) // 1024
-            with tempfile.TemporaryFile("w+b") as tmp:
-                # download to tmp dir
-                for chunk in tqdm(r.iter_content(chunk_size = 1024), desc=desc, total=total, unit='KB', leave=False):
-                    if chunk:
-                        tmp.write(chunk)
-                tmp.seek(0)
-                # move to home
-                with open(path, "wb") as f:
-                    if write_callback:
-                        write_callback(tmp, f)
-                    else:
-                        f.write(tmp.read())
-            break
-        except requests.exceptions.RequestException:
-            logger.info(f"Failed to download {url}. Retrying ({idx + 1}/{len(urls)})...")
-    else:
-        raise requests.exceptions.RequestException("All urls are blocked.")
+    with progress:
+        logger.info(desc)
+        for idx, url in enumerate(urls):
+            task = progress.add_task("download", filename=path.name, idx=str(idx + 1), start=False)
+
+            try:
+                r = requests.get(url, stream = True, timeout=timeout)
+                progress.update(task, total=int(r.headers.get('Content-Length', 0)))
+
+                with tempfile.TemporaryFile("w+b") as tmp:
+                    # download to tmp dir
+                    progress.start_task(task)
+                    for chunk in r.iter_content(chunk_size = 1024):
+                        if chunk:
+                            tmp.write(chunk)
+                            progress.update(task, advance=len(chunk))
+
+                    tmp.seek(0)
+                    # move to home
+                    with open(path, "wb") as f:
+                        if write_callback:
+                            write_callback(tmp, f)
+                        else:
+                            f.write(tmp.read())
+
+                    logger.info(f"Download completed: {path}")
+                break
+            except requests.exceptions.RequestException:
+                progress.remove_task(task)
+                logger.warn(f"Failed to download from {url}")
+        else:
+            logger.error("All urls are blocked")
+            raise requests.exceptions.RequestException("All urls are blocked")
 
 def runbg(command: List[str]) -> int:
     """

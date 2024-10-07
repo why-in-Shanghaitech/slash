@@ -38,7 +38,7 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
                 "https://ghproxy.net/https://github.com/tindy2013/subconverter/releases/download/v0.9.0/subconverter_linux64.tar.gz",
             ],
             path = tar_path,
-            desc = "Download Tarball"
+            desc = "Downloading subconverter tarball..."
         )
     
     # process in the temp directory
@@ -142,18 +142,14 @@ class Env:
         """
         try:
             if self.subscriptions:
-                # TODO: check if we need to convert the subscription
-                def write_callback(src, tgt):
-                    tgt.write(src.read())
-
                 # download the subscription
                 utils.download_file(
                     urls = self.subscriptions,
                     path = self.workdir / "config.yaml.tmp",
-                    desc = "Download subscription",
-                    write_callback = write_callback
+                    desc = "Downloading subscription..."
                 )
 
+                # convert the subscription
                 convert(self.workdir / "config.yaml.tmp", self.workdir / "config.yaml")
 
                 # remove the temp file
