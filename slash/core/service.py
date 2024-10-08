@@ -152,6 +152,15 @@ class Service:
         if self.is_alive():
             utils.runbg(['kill', '-9', str(self.pid)])
 
+            timeout = 30
+            start = time.time()
+            with logger.status("Waiting the service to shut down..."):
+                while self.is_alive():
+                    time.sleep(1)
+                    if time.time() - start > timeout:
+                        logger.error("Service shutdown failed.")
+                        exit(1)
+
     @classmethod
     def launch(cls, env: Env, job: str) -> 'Service':
         """
