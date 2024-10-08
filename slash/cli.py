@@ -1,14 +1,27 @@
 import sys
 import os
 import shlex
-import warnings
+from pathlib import Path
+import argparse
+
 from slash import Slash
 from slash.core import (
     initialize,
     shell
 )
-from pathlib import Path
-import argparse
+import slash.utils as utils
+
+logger = utils.logger
+
+def get_general_parser():
+    """
+    Parser for the general slash command.
+    """
+    parser = argparse.ArgumentParser(prog='slash', description='Slash command line interface')
+    parser.add_argument('command', help='The command to run. Options: run, init, shell, activate, deactivate, create, remove. If no command is provided, it will use "run" as default.')
+    parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
+
+    return parser
 
 def get_create_parser():
     """
@@ -29,72 +42,105 @@ def get_remove_parser():
 
     return parser
 
+def get_shell_parser():
+    """
+    Parser for the shell slash command.
+    """
+    parser = argparse.ArgumentParser(prog='slash shell', description='Slash shell internal command')
+    parser.add_argument('command', help='The command to run', choices=['hook', 'activate', 'deactivate'])
+    parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
+
+    return parser
+
+def get_shell_activate_parser():
+    """
+    Parser for the `slash shell activate` command.
+    """
+    parser = argparse.ArgumentParser(prog='slash activate', description='Activate a Slash environment')
+    parser.add_argument('name', help='The name of the environment', default='default', nargs='?')
+    parser.add_argument('--shell_pid', help=argparse.SUPPRESS, default='1')
+
+    return parser
+
+def get_shell_deactivate_parser():
+    """
+    Parser for the `slash shell activate` command.
+    """
+    parser = argparse.ArgumentParser(prog='slash deactivate', description='Deactivate a Slash environment')
+    parser.add_argument('--shell_pid', help=argparse.SUPPRESS, default='1')
+
+    return parser
+
 def main(*args, **kwargs):
+    args = get_general_parser().parse_args()
 
-    if len(sys.argv) < 2:
-        print("Usage: slash [run|activate|deactivate|create|remove] [args]")
-        sys.exit(1)
-
-    slash_exe = Path(sys.argv[0]).resolve()
-    command = sys.argv[1]
-
-    if command == "run":
+    if args.command == "run":
         with Slash():
             os.system(shlex.join(sys.argv[2:]))
     
-    elif command == "init":
+    elif args.command == "init":
+        slash_exe = Path(sys.argv[0]).resolve()
         initialize(slash_exe)
 
-    elif command == "shell":
-        if len(sys.argv) < 3:
-            print("Usage: slash shell [command]")
-            sys.exit(1)
+    elif args.command == "shell":
+        args = get_shell_parser().parse_args(args.args)
 
-        if sys.argv[2] == "hook":
+        if args.command == "hook":
+            slash_exe = Path(sys.argv[0]).resolve()
             print(shell.hook(slash_exe))
 
-        elif sys.argv[2] == "activate":
-            if len(sys.argv) == 3:
-                env_name = 'default'
-            elif len(sys.argv) == 4:
-                env_name = sys.argv[3]
-            else:
-                print("Slash only accepts one argument for `activate`.")
-                sys.exit(1)
-            service = Slash(env_name).launch("slash")
-            port = service.port
-            if 'http_proxy' in os.environ or 'https_proxy' in os.environ:
-                warnings.warn("http_proxy is already set. It will be overwritten.")
-            script = shell.activate(env_name, port)
-            print(script)
+        elif args.command == "activate":
+            args = get_shell_activate_parser().parse_args(args.args)
+            cur_env = os.environ.get("SLASH_ENV", None)
+            scripts = [""]
 
-        elif sys.argv[2] == "deactivate":
-            env_name = os.environ.get("SLASH_ENV", None)
-            if env_name is None:
-                print("No environment is activated.")
+            # Check if the environment is already activated
+            if args.name == cur_env:
+                return
+
+            # Deactivate the current environment
+            if cur_env is not None:
+                Slash(cur_env).stop("slash")
+                scripts.append(shell.deactivate())
+            else:
+                if 'http_proxy' in os.environ or 'https_proxy' in os.environ:
+                    logger.warn("http_proxy is already set. It will be overwritten.")
+
+            # Activate the new environment
+            service = Slash(args.name).launch(f"__pid_{args.shell_pid}_shell__")
+            scripts.append(shell.activate(args.name, service.port))
+            print("\n".join(scripts))
+
+        elif args.command == "deactivate":
+            args = get_shell_deactivate_parser().parse_args(args.args)
+            cur_env = os.environ.get("SLASH_ENV", None)
+
+            # Check if no environment is activated
+            if cur_env is None:
+                logger.error("No environment is activated.")
                 sys.exit(1)
-            Slash(env_name).stop("slash")
+
+            # Deactivate the current environment
+            Slash(cur_env).stop(f"__pid_{args.shell_pid}_shell__")
             script = shell.deactivate()
             print(script)
         
-        else:
-            print("Usage: slash shell [activate|deactivate]")
-            sys.exit(1)
-        
-    elif command == "activate":
-        print("You haven't run `slash init` yet. Run `slash init` first.")
+    elif args.command == "activate":
+        logger.error("You haven't run `slash init` yet. Run `slash init` first.")
+        sys.exit(1)
 
-    elif command == "deactivate":
-        print("You haven't run `slash init` yet. Run `slash init` first.")
+    elif args.command == "deactivate":
+        logger.error("You haven't run `slash init` yet. Run `slash init` first.")
+        sys.exit(1)
     
-    elif command == "create":
+    elif args.command == "create":
         from slash.core import EnvsManager
         parser = get_create_parser()
         args = parser.parse_args(sys.argv[2:])
         manager = EnvsManager()
         env = manager.create_env(args.name, args.file)
     
-    elif command == "remove":
+    elif args.command == "remove":
         from slash.core import EnvsManager
         parser = get_remove_parser()
         args = parser.parse_args(sys.argv[2:])

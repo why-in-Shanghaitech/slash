@@ -25,14 +25,14 @@ def hook(slash_exe: Path) -> str:
 
     __slash_activate() {
         \\local ask_slash
-        ask_slash="$(PS1="${PS1:-}" __slash_exe shell "$@")" || \\return
+        ask_slash="$(PS1="${PS1:-}" __slash_exe shell "$@" --shell_pid "$$" )" || \\return
         \\eval "$ask_slash"
         __slash_hashr
     }
 
     __slash_deactivate() {
         \\local ask_slash
-        ask_slash="$(PS1="${PS1:-}" __slash_exe shell "$@")" || \\return
+        ask_slash="$(PS1="${PS1:-}" __slash_exe shell "$@" --shell_pid "$$" )" || \\return
         \\eval "$ask_slash"
         __slash_hashr
     }
