@@ -7,6 +7,7 @@ import time
 import requests
 import socket
 import json
+import tarfile
 from filelock import SoftFileLock
 import slash.utils as utils
 from slash.core import (
@@ -16,6 +17,40 @@ from slash.core import (
 )
 
 logger = utils.logger
+
+def get_yacd_workdir() -> Path:
+    """
+    Return the path to the yacd workdir.
+    """
+    workdir = WORK_DIR / "yacd-meta"
+
+    if not workdir.exists():
+
+        logger.info("Preparing dashboard. Please wait, it could take a few minutes...")
+        tar_path = WORK_DIR / "yacd-meta.tar.gz"
+
+        # download and cache
+        utils.download_file(
+            urls = [
+                "https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.tar.gz",
+                "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.tar.gz"
+            ],
+            path = tar_path,
+            desc = "Downloading dashboard...",
+        )
+
+        def filter(tarinfo: tarfile.TarInfo, *args) -> tarfile.TarInfo:
+            tarinfo.name = Path(tarinfo.name).relative_to("Yacd-meta-gh-pages").as_posix()
+            return tarinfo
+
+        # extract the tarball
+        with tarfile.open(tar_path, "r:gz") as tar:
+            tar.extractall(workdir, filter=filter)
+        
+        # remove the tarball
+        tar_path.unlink()
+    
+    return workdir
 
 def get_executable() -> Path:
     """
@@ -48,11 +83,29 @@ def get_executable() -> Path:
 
 
 class Service:
-    def __init__(self, pid: int, port: int, env: Env, jobs: List[str]) -> None:
+    def __init__(self, pid: int, port: int, ctl: Tuple[int, str], env: Env, jobs: List[str]) -> None:
         self.pid = pid
         self.port = port
+        if ctl is not None:
+            self.ctl = tuple(ctl) # (ctl_port, secret)
         self.env = env
         self.jobs = jobs
+    
+    def get_controller_urls(self) -> List[str]:
+        """
+        Return the controller urls.
+        """
+        if self.ctl is None:
+            return []
+        
+        port, secret = self.ctl
+
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+        return [
+            f'http://127.0.0.1:{port}/ui/?hostname=127.0.0.1&port={port}&secret={secret}',
+            f'http://{ip_address}:{port}/ui/?hostname={ip_address}&port={port}&secret={secret}'
+        ]
     
     def is_alive(self) -> bool:
         """
@@ -111,33 +164,40 @@ class Service:
                 The only identifier to the job.
         """
         with utils.FreePort() as fp:
-            # set the port
-            env.set_port(fp.port)
+            with utils.FreePort() as fp_ctl:
+                # set the port
+                env.set_port(fp.port)
 
-            # start the service
-            pid = utils.runbg(['nohup', str(get_executable()), "-d", str(env.workdir)])
-            service = cls(pid, fp.port, env, [job])
+                # set the controller
+                secret = env.set_controller(fp_ctl.port, get_yacd_workdir())
 
-            # wait for the service to start
-            retries = 30
-            interval = 5
-            with logger.status("Waiting the service to be established...") as status:
-                cnt = 0
-                while not service.is_operational():
-                    cnt += 1
-                    if cnt < retries:
-                        status.update(f"Waiting the service to be established ({cnt}/{retries})...")
-                        time.sleep(interval) # wait for the service to start
-                    else:
-                        logger.error("Service establish failed.")
-                        service.stop()
-                        exit(1)
-            
-            # service established
-            logger.info("Service established.")
-            time.sleep(interval) # wait for the service to be fully operational
+                # start the service
+                pid = utils.runbg(['nohup', str(get_executable()), "-d", str(env.workdir)])
+                service = cls(pid, fp.port, (fp_ctl.port, secret), env, [job])
 
-            return service
+                # wait for the service to start
+                retries = 30
+                interval = 5
+                with logger.status("Waiting the service to be established...") as status:
+                    cnt = 0
+                    while not service.is_operational():
+                        cnt += 1
+                        if cnt < retries:
+                            status.update(f"Waiting the service to be established ({cnt}/{retries})...")
+                            time.sleep(interval) # wait for the service to start
+                        else:
+                            logger.error("Service establish failed.")
+                            service.stop()
+                            exit(1)
+                
+                # service established
+                logger.info("Service established.")
+                time.sleep(interval) # wait for the service to be fully operational
+
+                # show the controller urls
+                logger.info("The service dashboard is available at:", ", ".join(service.get_controller_urls()))
+
+                return service
     
     @classmethod
     def load(cls, env: Env) -> Union['Service', None]:
@@ -169,7 +229,7 @@ class Service:
                 return None
             
             sdata = data[hostname]
-            service = Service(sdata["pid"], sdata["port"], env, sdata["jobs"])
+            service = Service(sdata["pid"], sdata["port"], sdata["ctl"], env, sdata["jobs"])
 
             # check if the service is alive
             if not service.is_alive():
@@ -202,7 +262,7 @@ class Service:
 
             # update the service data
             if self.is_alive():
-                data[hostname] = {"pid": self.pid, "port": self.port, "jobs": self.jobs}
+                data[hostname] = {"pid": self.pid, "port": self.port, "ctl": self.ctl, "jobs": self.jobs}
             else:
                 if hostname in data:
                     del data[hostname]

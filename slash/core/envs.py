@@ -7,6 +7,7 @@ import yaml
 import shutil
 import tarfile
 import subprocess
+import secrets
 import slash.utils as utils
 from slash.core.constants import WORK_DIR, ENVS_DIR
 
@@ -168,7 +169,7 @@ class Env:
             logger.error(f"Failed to update the config file of environment {self.name}: {e}")
             return False
     
-    def get_config(self) -> dict:
+    def _get_config(self) -> dict:
         """
         Get the subscription config content.
 
@@ -192,7 +193,7 @@ class Env:
         
         return content
     
-    def set_config(self, content: dict):
+    def _set_config(self, content: dict):
         """
         Set the subscription config content.
         """
@@ -205,7 +206,7 @@ class Env:
         """
         Set the port of the environment.
         """
-        config = self.get_config()
+        config = self._get_config()
         # properly set the port
         if 'port' in config:
             del config['port']
@@ -215,9 +216,65 @@ class Env:
             del config['redir-port']
         if 'tproxy-port' in config:
             del config['tproxy-port']
+        if 'mixed-port' in config:
+            del config['mixed-port']
 
-        config['mixed-port'] = int(port)
-        self.set_config(config)
+        config['port'] = int(port)
+        self._set_config(config)
+    
+    def set_controller(
+        self,
+        port: Optional[int] = None,
+        ui_folder: Optional[Union[str, Path]] = None,
+        local_only: bool = False
+    ) -> str:
+        """
+        Set the controller of the environment.
+
+        Arguments:
+            port: Optional[int]
+                The port of the controller. If None, the controller will be disabled.
+            ui_folder: Optional[Union[str, Path]]
+                The folder of the UI. If None, the UI will be disabled.
+            local_only: bool
+                Whether the controller is only accessible from the local machine.
+        
+        Returns:
+            secret: str
+                The secret key of the controller. If the controller is disabled, it will return an empty string.
+        """
+        config = self._get_config()
+        # properly set the controller
+        if 'external-controller' in config:
+            del config['external-controller']
+        if 'external-ui' in config:
+            del config['external-ui']
+        if 'secret' in config:
+            del config['secret']
+
+        # if port is None, disable the controller
+        if port is None:
+            self._set_config(config)
+            return ""
+        
+        # set proper ip
+        ip = "127.0.0.1" if local_only else "0.0.0.0"
+        secret = secrets.token_urlsafe()
+        config['external-controller'] = f"{ip}:{port}"
+        config['secret'] = secret
+
+        # if ui_folder is None, disable the UI
+        if not ui_folder:
+            self._set_config(config)
+            return secret
+
+        # set the UI
+        if isinstance(ui_folder, Path):
+            ui_folder = ui_folder.resolve()
+        config['external-ui'] = str(ui_folder)
+        self._set_config(config)
+
+        return secret
 
 
 class EnvsManager:

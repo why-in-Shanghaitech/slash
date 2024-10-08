@@ -23,17 +23,17 @@ class Logger:
     def __init__(self) -> None:
         self.console = Console(stderr=True)
     
-    def debug(self, msg: str) -> None:
-        self.console.log("[blue]DEBUG[/blue] |", msg)
+    def debug(self, *args, **kwargs) -> None:
+        self.console.log("[blue]DEBUG[/blue] |", *args, **kwargs)
 
-    def info(self, msg: str) -> None:
-        self.console.log("[green]INFO[/green] |", msg)
+    def info(self, *args, **kwargs) -> None:
+        self.console.log("[green]INFO[/green] |", *args, **kwargs)
 
-    def warn(self, msg: str) -> None:
-        self.console.log("[yellow]WARN[/yellow] |", msg)
+    def warn(self, *args, **kwargs) -> None:
+        self.console.log("[yellow]WARN[/yellow] |", *args, **kwargs)
 
-    def error(self, msg: str) -> None:
-        self.console.log("[red]ERRO[/red] |", msg)
+    def error(self, *args, **kwargs) -> None:
+        self.console.log("[red]ERRO[/red] |", *args, **kwargs)
     
     def status(self, *args, **kwargs):
         return self.console.status(*args, **kwargs)
