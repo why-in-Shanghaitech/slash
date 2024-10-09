@@ -8,6 +8,7 @@ import shutil
 import tarfile
 import subprocess
 import secrets
+import sys
 import slash.utils as utils
 from slash.core.constants import WORK_DIR, ENVS_DIR
 
@@ -355,10 +356,12 @@ class EnvsManager:
 
     def remove_env(self, name: str):
         if name not in self.envs:
-            raise ValueError(f"Environment '{name}' not found.")
+            logger.error(f"Environment '{name}' not found.")
+            sys.exit(1)
         
         if name in ["base", "default"]:
-            raise ValueError(f"Cannot remove the default environment '{name}'.")
+            logger.error(f"Cannot remove the default environment '{name}'.")
+            sys.exit(1)
         
         env = self.envs.get(name)
         shutil.rmtree(env.workdir, ignore_errors=True)
