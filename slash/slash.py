@@ -1,12 +1,18 @@
 import os
-import warnings
+import random
 from slash.core import EnvsManager, ServiceManager, Service
+import slash.utils as utils
+
+logger = utils.logger
 
 class Slash:
     def __init__(self, env_name: str = 'default') -> None:
         self.envs_manager = EnvsManager()
         self.service_manager = ServiceManager(self.envs_manager)
         self.env = self.envs_manager.get_env(env_name)
+
+        random_str = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=8))
+        self._with_jobname = f"__pid_{os.getpid()}_with-{random_str}__"
 
     def launch(self, job: str) -> 'Service':
         """
@@ -21,18 +27,15 @@ class Slash:
         self.service_manager.stop(self.env, job)
     
     def __enter__(self) -> 'Slash':
-        this_pid = os.getpid()
-        service = self.launch(str(this_pid))
-        port = service.port
+        service = self.launch(self._with_jobname)
         if 'http_proxy' in os.environ or 'https_proxy' in os.environ:
-            warnings.warn("http_proxy is already set. It will be overwritten.")
-        os.environ['http_proxy'] = f"http://127.0.0.1:{port}"
-        os.environ['https_proxy'] = f"http://127.0.0.1:{port}"
+            logger.warn("http_proxy is already set. It will be overwritten.")
+        os.environ['http_proxy'] = f"http://127.0.0.1:{service.port}"
+        os.environ['https_proxy'] = f"http://127.0.0.1:{service.port}"
         return self
  
     def __exit__(self, type, value, trace) -> None:
-        this_pid = os.getpid()
-        self.stop(str(this_pid))
+        self.stop(self._with_jobname)
         del os.environ['http_proxy']
         del os.environ['https_proxy']
         return

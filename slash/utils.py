@@ -1,10 +1,11 @@
-from typing import List, Tuple, Union, Iterable
+from typing import List, Tuple, Union, Iterable, Optional
 from pathlib import Path
 import requests
 import socket
 import tempfile
 import subprocess
 import os
+import psutil
 import filelock
 import random
 import time
@@ -199,6 +200,19 @@ def runbg(command: List[str]) -> int:
     p = subprocess.Popen(command,
         stdout=open('/dev/null', 'w'),
         stderr=open('/dev/null', 'w'),
-        preexec_fn=os.setpgrp
+        start_new_session=True,
     )
     return p.pid
+
+def get_process(pid: Optional[int] = None) -> Union[psutil.Process, None]:
+    """
+    Get a process object by pid.
+    If pid is None, get the current process.
+    """
+    if pid is None:
+        pid = os.getpid()
+
+    try:
+        return psutil.Process(pid)
+    except psutil.NoSuchProcess:
+        return None

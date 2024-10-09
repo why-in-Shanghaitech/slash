@@ -3,6 +3,7 @@ from pathlib import Path
 import gzip
 import telnetlib
 import os
+import psutil
 import re
 import time
 import requests
@@ -112,7 +113,7 @@ class Service:
         """
         Check if the service is alive.
         """
-        return (Path('/proc') / str(self.pid)).exists()
+        return utils.get_process(self.pid) is not None
     
     def is_operational(self) -> bool:
         """
@@ -150,17 +151,20 @@ class Service:
         """
         Stop the service.
         """
-        if self.is_alive():
-            utils.runbg(['kill', '-9', str(self.pid)])
+        proc = utils.get_process(self.pid)
 
-            timeout = 30
-            start = time.time()
+        if proc is not None:
+            proc.terminate()
             with logger.status("Waiting the service to shut down..."):
-                while self.is_alive():
-                    time.sleep(1)
-                    if time.time() - start > timeout:
-                        logger.error("Service shutdown failed.")
-                        exit(1)
+                try:
+                    proc.wait(timeout=30)
+                except psutil.TimeoutExpired:
+                    logger.error("Service shutdown failed.")
+                    exit(1)
+
+            logger.info("Service stopped.")
+        else:
+            logger.warn("Try to stop a service, but the service is not alive.")
 
     @classmethod
     def launch(cls, env: Env, job: str) -> 'Service':
@@ -299,7 +303,7 @@ class ServiceManager:
         """
         Check if there are dead jobs. If so, remove them.
         """
-        pattern = r"^__pid_(?P<pid>\d+)_(?P<comment>\w+)__$"
+        pattern = r"^__pid_(?P<pid>\d+)_(?P<comment>[a-zA-Z0-9-]+)__$"
 
         services = list(self.services.values())
         for service in services:
