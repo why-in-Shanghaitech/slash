@@ -1,6 +1,7 @@
+from typing import Dict
 import os
 import random
-from slash.core import EnvsManager, ServiceManager, Service
+from slash.core import Env, EnvsManager, ServiceManager, Service
 import slash.utils as utils
 
 logger = utils.logger
@@ -25,6 +26,34 @@ class Slash:
         Stop the service.
         """
         self.service_manager.stop(self.env, job)
+
+    @classmethod
+    def create(cls, name: str, file: str) -> None:
+        """
+        Create an environment.
+
+        Arguments:
+            name (str): The name of the environment.
+            file (str): The path to the environment file, or the link to the subscription.
+        """
+        EnvsManager().create_env(name, file)
+    
+    @classmethod
+    def remove(cls, name: str) -> None:
+        """
+        Remove an environment.
+
+        Arguments:
+            name (str): The name of the environment.
+        """
+        EnvsManager().remove_env(name)
+
+    @classmethod
+    def list(cls) -> Dict[str, 'Env']:
+        """
+        List all environments.
+        """
+        return EnvsManager().get_envs()
     
     def __enter__(self) -> 'Slash':
         service = self.launch(self._with_jobname)
