@@ -36,8 +36,8 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
         # Use the release
         utils.download_file(
             urls = [
-                "https://github.com/tindy2013/subconverter/releases/download/v0.9.0/subconverter_linux64.tar.gz",
-                "https://ghproxy.net/https://github.com/tindy2013/subconverter/releases/download/v0.9.0/subconverter_linux64.tar.gz",
+                "https://github.com/MetaCubeX/subconverter/releases/download/Alpha/subconverter_linux64.tar.gz",
+                "https://ghproxy.net/https://github.com/MetaCubeX/subconverter/releases/download/Alpha/subconverter_linux64.tar.gz",
             ],
             path = tar_path,
             desc = "Downloading subconverter tarball..."
