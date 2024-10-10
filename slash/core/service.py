@@ -177,41 +177,40 @@ class Service:
             job: str
                 The only identifier to the job.
         """
-        with utils.FreePort() as fp:
-            with utils.FreePort() as fp_ctl:
-                # set the port
-                env.set_port(fp.port)
+        with utils.FreePort() as fp, utils.FreePort() as fp_ctl:
+            # set the port
+            env.set_port(fp.port)
 
-                # set the controller
-                secret = env.set_controller(fp_ctl.port, get_yacd_workdir())
+            # set the controller
+            secret = env.set_controller(fp_ctl.port, get_yacd_workdir())
 
-                # start the service
-                pid = utils.runbg(['nohup', str(get_executable()), "-d", str(env.workdir)])
-                service = cls(pid, fp.port, (fp_ctl.port, secret), env, [job])
+            # start the service
+            pid = utils.runbg(['nohup', str(get_executable()), "-d", str(env.workdir)])
+            service = cls(pid, fp.port, (fp_ctl.port, secret), env, [job])
 
-                # wait for the service to start
-                retries = 30
-                interval = 5
-                with logger.status("Waiting the service to be established...") as status:
-                    cnt = 0
-                    while not service.is_operational():
-                        cnt += 1
-                        if cnt < retries:
-                            status.update(f"Waiting the service to be established ({cnt}/{retries})...")
-                            time.sleep(interval) # wait for the service to start
-                        else:
-                            logger.error("Service establish failed.")
-                            service.stop()
-                            exit(1)
-                
-                # service established
-                logger.info("Service established.")
-                time.sleep(interval) # wait for the service to be fully operational
+            # wait for the service to start
+            retries = 30
+            interval = 5
+            with logger.status("Waiting the service to be established...") as status:
+                cnt = 0
+                while not service.is_operational():
+                    cnt += 1
+                    if cnt < retries:
+                        status.update(f"Waiting the service to be established ({cnt}/{retries})...")
+                        time.sleep(interval) # wait for the service to start
+                    else:
+                        logger.error("Service establish failed.")
+                        service.stop()
+                        exit(1)
+            
+            # service established
+            logger.info("Service established.")
+            time.sleep(interval) # wait for the service to be fully operational
 
-                # show the controller urls
-                logger.info("The service dashboard is available at:", ", ".join(service.get_controller_urls()))
+            # show the controller urls
+            logger.info("The service dashboard is available at:", ", ".join(service.get_controller_urls()))
 
-                return service
+            return service
     
     @classmethod
     def load(cls, env: Env) -> Union['Service', None]:
