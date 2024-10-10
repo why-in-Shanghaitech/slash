@@ -167,7 +167,7 @@ class Env:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to update the config file of environment {self.name}: {e}")
+            logger.error(f"Failed to update the config file of environment '{self.name}': {e}")
             return False
     
     def _get_config(self) -> dict:

@@ -40,6 +40,12 @@ class Logger:
     def status(self, *args, **kwargs):
         return self.console.status(*args, **kwargs)
 
+    def mute(self) -> None:
+        self.console.quiet = True
+
+    def unmute(self) -> None:
+        self.console.quiet = False
+
 logger = Logger()
 
 
