@@ -27,6 +27,12 @@ class Slash:
         """
         self.service_manager.stop(self.env, job)
 
+    def update(self) -> bool:
+        """
+        Update the environment.
+        """
+        return self.env.update()
+
     @classmethod
     def create(cls, name: str, file: str) -> None:
         """

@@ -76,7 +76,7 @@ def get_env_parser():
     Parser for the `slash env` command.
     """
     parser = argparse.ArgumentParser(prog='slash env', description='Slash environment command')
-    parser.add_argument('command', help='The command to run', choices=['create', 'remove', 'list'])
+    parser.add_argument('command', help='The command to run', choices=['create', 'remove', 'list', 'update'])
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
 
     return parser
@@ -97,6 +97,15 @@ def get_env_remove_parser():
     """
     parser = argparse.ArgumentParser(prog='slash env remove', description='Remove a Slash environment')
     parser.add_argument('-n', '--name', help='The name of the environment')
+
+    return parser
+
+def get_env_update_parser():
+    """
+    Parser for the `slash env update` command.
+    """
+    parser = argparse.ArgumentParser(prog='slash env update', description='Update a Slash environment')
+    parser.add_argument('-n', '--name', help='The name of the environment', default=None)
 
     return parser
 
@@ -171,7 +180,7 @@ def main(*args, **kwargs):
             print(script)
     
     elif args.command == "env":
-        args = get_env_parser().parse_args(sys.argv[2:])
+        args = get_env_parser().parse_args(args.args)
 
         if args.command == "create":
             args = get_env_create_parser().parse_args(args.args)
@@ -197,6 +206,16 @@ def main(*args, **kwargs):
             
             for line in s:
                 logger.info(line)
+        
+        elif args.command == "update":
+            args = get_env_update_parser().parse_args(args.args)
+            name = args.name if args.name is not None else os.environ.get("SLASH_ENV", None)
+            if name is None:
+                logger.error("No environment is activated.")
+                sys.exit(1)
+            else:
+                Slash(name).update()
+                logger.info(f"Environment '{name}' updated.")
     
     else:
         with Slash():
