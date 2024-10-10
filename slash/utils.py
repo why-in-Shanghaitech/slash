@@ -9,6 +9,7 @@ import psutil
 import filelock
 import random
 import time
+from faker import Faker
 from textwrap import dedent
 from rich.console import Console
 from rich.progress import (
@@ -164,7 +165,8 @@ def download_file(
             task = progress.add_task("download", filename=path.name, idx=str(idx + 1), start=False)
 
             try:
-                r = requests.get(url, stream = True, timeout=timeout)
+                headers = {"User-Agent": Faker().user_agent()}
+                r = requests.get(url, headers=headers, stream=True, timeout=timeout)
                 progress.update(task, total=int(r.headers.get('Content-Length', 0)))
 
                 with tempfile.TemporaryFile("w+b") as tmp:

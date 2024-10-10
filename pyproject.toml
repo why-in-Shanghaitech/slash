@@ -11,6 +11,7 @@ dependencies = [
     'filelock',
     'rich',
     'psutil',
+    'Faker',
 ]
 requires-python = ">=3.8"
 description = "SLURM Link Assistant Service Hub (SLASH) is a submodule for the python package sapp, dealing with the Internect connection problems."
