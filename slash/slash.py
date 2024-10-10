@@ -63,14 +63,17 @@ class Slash:
     
     def __enter__(self) -> 'Slash':
         service = self.launch(self._with_jobname)
-        if 'http_proxy' in os.environ or 'https_proxy' in os.environ:
-            logger.warn("http_proxy is already set. It will be overwritten.")
+        self._old_envs = (os.environ.get('http_proxy', None), os.environ.get('https_proxy', None))
         os.environ['http_proxy'] = f"http://127.0.0.1:{service.port}"
         os.environ['https_proxy'] = f"http://127.0.0.1:{service.port}"
         return self
  
     def __exit__(self, type, value, trace) -> None:
         self.stop(self._with_jobname)
-        del os.environ['http_proxy']
-        del os.environ['https_proxy']
+        if self._old_envs[0] is not None:
+            os.environ['http_proxy'] = self._old_envs[0]
+            os.environ['https_proxy'] = self._old_envs[1]
+        else:
+            del os.environ['http_proxy']
+            del os.environ['https_proxy']
         return
