@@ -76,7 +76,7 @@ def get_env_parser():
     Parser for the `slash env` command.
     """
     parser = argparse.ArgumentParser(prog='slash env', description='Slash environment command')
-    parser.add_argument('command', help='The command to run', choices=['create', 'remove', 'list', 'update'])
+    parser.add_argument('command', help='The command to run', choices=['create', 'remove', 'list', 'update', 'info'])
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
 
     return parser
@@ -105,6 +105,15 @@ def get_env_update_parser():
     Parser for the `slash env update` command.
     """
     parser = argparse.ArgumentParser(prog='slash env update', description='Update a Slash environment')
+    parser.add_argument('-n', '--name', help='The name of the environment', default=None)
+
+    return parser
+
+def get_env_info_parser():
+    """
+    Parser for the `slash env info` command.
+    """
+    parser = argparse.ArgumentParser(prog='slash env info', description='Show the info of a Slash environment')
     parser.add_argument('-n', '--name', help='The name of the environment', default=None)
 
     return parser
@@ -216,6 +225,25 @@ def main(*args, **kwargs):
             else:
                 Slash(name).update()
                 logger.info(f"Environment '{name}' updated.")
+        
+        elif args.command == "info":
+            args = get_env_info_parser().parse_args(args.args)
+            name = args.name if args.name is not None else os.environ.get("SLASH_ENV", None)
+            if name is None:
+                logger.error("No environment is activated.")
+                sys.exit(1)
+            else:
+                info = Slash(name).info()
+                logger.info(f"Environment '{name}':")
+                logger.info(f"         config: {info['config']}")
+                logger.info(f"  subscriptions: {info['subscriptions']}")
+                logger.info(f"    last update: {info['last_updated']}")
+                if info["service_status"] == "Online":
+                    logger.info(f"        Service: [green]Online[/green]")
+                    logger.info(f"           Port: {info['service_port']}")
+                    logger.info(f"      Dashboard: {info['service_dashboard']}")
+                else:
+                    logger.info(f"        Service: [red]Offline[/red]")
     
     else:
         with Slash():

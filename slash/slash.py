@@ -32,6 +32,27 @@ class Slash:
         Update the environment.
         """
         return self.env.update()
+    
+    def info(self) -> Dict[str, str]:
+        """
+        Get the environment information.
+        """
+        info = {
+            'workdir': self.env.workdir,
+            'config': self.env.workdir / 'config.yaml',
+            'subscriptions': self.env.subscriptions,
+            'last_updated': self.env.last_updated,
+        }
+
+        if self.service_manager.services.get(self.env.name, None) is not None:
+            service = self.service_manager.services[self.env.name]
+            info['service_status'] = 'Online'
+            info['service_port'] = service.port
+            info['service_dashboard'] = service.get_controller_urls()
+        else:
+            info['service_status'] = 'Offline'
+        
+        return info
 
     @classmethod
     def create(cls, name: str, file: str) -> None:
