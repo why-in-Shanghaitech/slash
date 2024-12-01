@@ -344,7 +344,7 @@ class EnvsManager:
             "#",
             "# To deactivate this environment, use",
             "#",
-            f"#     $ slash deactivate",
+            "#     $ slash deactivate",
             ""
         ]
         for message in messages:
