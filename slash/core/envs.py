@@ -157,6 +157,17 @@ class Env:
                 # remove the temp file
                 (self.workdir / "config.yaml.tmp").unlink()
 
+                # download geoip.metadb
+                utils.download_file(
+                    urls = [
+                        "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb",
+                        "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb",
+                        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb",
+                    ],
+                    path = self.workdir / "geoip.metadb",
+                    desc = "Downloading geoip.metadb..."
+                )
+
             else:
                 # create an empty subscription file
                 with open(self.workdir / "config.yaml", 'w') as f:
