@@ -141,6 +141,12 @@ class Env:
             data = json.load(f)
         return cls(**data)
     
+    def destory(self) -> None:
+        """
+        Destory the environment.
+        """
+        shutil.rmtree(self.workdir, ignore_errors=True)
+    
     def update(self) -> bool:
         """
         Update the environment.
@@ -185,7 +191,7 @@ class Env:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to update the config file of environment '{self.name}': {e}")
+            logger.error(f"Failed to update the config file of environment '{self.name}': ({e.__class__.__name__}) {e}")
             return False
     
     def _get_config(self) -> dict:
@@ -336,7 +342,12 @@ class EnvsManager:
         env.save()
 
         # download the subscription
-        env.update()
+        succ = env.update()
+
+        if not succ:
+            logger.error(f"Failed to create the environment '{env.name}'.")
+            env.destory()
+            return None
 
         # print the message
         logger.info(f"environment location: {env.workdir}")
@@ -367,8 +378,7 @@ class EnvsManager:
             logger.error(f"Cannot remove the default environment '{name}'.")
             sys.exit(1)
         
-        env = self.envs.get(name)
-        shutil.rmtree(env.workdir, ignore_errors=True)
+        self.envs.get(name).destory()
         del self.envs[name]
 
         logger.info(f"Environment '{name}' has been removed.")
