@@ -18,7 +18,7 @@ def get_general_parser():
     Parser for the general slash command.
     """
     parser = argparse.ArgumentParser(prog='slash', description='Slash command line interface')
-    parser.add_argument('command', help='The command to run. Options: run, init, shell, activate, deactivate, create, remove.', choices=['run', 'init', 'shell', 'activate', 'deactivate', 'create', 'remove'])
+    parser.add_argument('command', help='The command to run. Options: run, init, shell, activate, deactivate, create, remove, env.', choices=['run', 'init', 'shell', 'activate', 'deactivate', 'create', 'remove', 'env'])
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
 
     return parser
