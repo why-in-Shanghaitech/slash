@@ -187,18 +187,22 @@ class Service:
             # wait for the service to start
             timeout = 150
             interval = 5
+            launched = False
             with logger.status("Waiting the service to be established...") as status:
                 start = time.time()
                 time.sleep(interval)
                 while not service.is_operational():
-                    duration = time.time() - start
-                    if duration < timeout:
-                        status.update(f"Waiting the service to be established (ETA {time.strftime('%M:%S', time.localtime(timeout - duration))})...")
-                        time.sleep(interval) # wait for the service to start
-                    else:
-                        logger.error("Service establish failed.")
-                        service.stop()
-                        exit(1)
+                    if not service.is_alive() or (duration := time.time() - start) > timeout:
+                        break
+                    status.update(f"Waiting the service to be established (ETA {time.strftime('%M:%S', time.localtime(timeout - duration))})...")
+                    time.sleep(interval) # wait for the service to start
+                else:
+                    launched = True
+            
+            if not launched:
+                logger.error("Service establish failed.")
+                service.stop()
+                exit(1)
             
             # service established
             logger.info("Service established.")
