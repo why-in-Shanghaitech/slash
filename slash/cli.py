@@ -18,8 +18,18 @@ def get_general_parser():
     Parser for the general slash command.
     """
     parser = argparse.ArgumentParser(prog='slash', description='Slash command line interface')
-    parser.add_argument('command', help='The command to run. Options: run, init, shell, activate, deactivate, create, remove. If no command is provided, it will use "run" as default.')
+    parser.add_argument('command', help='The command to run. Options: run, init, shell, activate, deactivate, create, remove.', choices=['run', 'init', 'shell', 'activate', 'deactivate', 'create', 'remove'])
     parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
+
+    return parser
+
+def get_run_parser():
+    """
+    Parser for the `slash run` command.
+    """
+    parser = argparse.ArgumentParser(prog='slash run', description='Run a command with a Slash environment')
+    parser.add_argument('-n', '--name', help='The name of the environment', default='default')
+    parser.add_argument('args', nargs=argparse.REMAINDER, help='The command to run')
 
     return parser
 
@@ -122,7 +132,8 @@ def main(*args, **kwargs):
     args = get_general_parser().parse_args()
 
     if args.command == "run":
-        with Slash():
+        args = get_run_parser().parse_args(args.args)
+        with Slash(env_name=args.name):
             os.system(shlex.join(args.args))
     
     elif args.command == "init":
@@ -244,8 +255,4 @@ def main(*args, **kwargs):
                     logger.info(f"      Dashboard: {info['service_dashboard']}")
                 else:
                     logger.info(f"        Service: [red]Offline[/red]")
-    
-    else:
-        with Slash():
-            os.system(shlex.join(sys.argv[1:]))
 
