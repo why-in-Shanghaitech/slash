@@ -33,10 +33,7 @@ def get_yacd_workdir() -> Path:
 
         # download and cache
         utils.download_file(
-            urls = [
-                "https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.tar.gz",
-                "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.tar.gz"
-            ],
+            urls = "https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.tar.gz",
             path = tar_path,
             desc = "Downloading dashboard...",
         )
@@ -71,7 +68,6 @@ def get_executable() -> Path:
         utils.download_file(
             urls = [
                 "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.1/mihomo-linux-amd64-v1.18.1.gz",
-                "https://mirror.ghproxy.com/https://github.com/MetaCubeX/mihomo/releases/download/v1.18.1/mihomo-linux-amd64-v1.18.1.gz",
                 "https://gitee.com/jiang-zhida/mihomo/releases/download/v1.16.0/clash.meta-linux-amd64-v1.16.0.gz" # the version on gitee is older
             ],
             path = exec_path,

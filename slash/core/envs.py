@@ -35,16 +35,22 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
 
         # Use the release
         utils.download_file(
-            urls = [
-                "https://github.com/MetaCubeX/subconverter/releases/download/Alpha/subconverter_linux64.tar.gz",
-                "https://ghproxy.net/https://github.com/MetaCubeX/subconverter/releases/download/Alpha/subconverter_linux64.tar.gz",
-            ],
+            urls = "https://github.com/MetaCubeX/subconverter/releases/download/Alpha/subconverter_linux64.tar.gz",
             path = tar_path,
             desc = "Downloading subconverter tarball..."
         )
     
     # process in the temp directory
     with tempfile.TemporaryDirectory() as tmpdir:
+
+        tpl_config = Path(tmpdir) / "ACL4SSR_Online_Mannix.ini"
+
+        # download the latest config file
+        utils.download_file(
+            urls = "https://raw.githubusercontent.com/zsokami/ACL4SSR/main/ACL4SSR_Online_Mannix.ini",
+            path = tpl_config,
+            desc = "Downloading template config file..."
+        )
 
         # extract the tarball
         with tarfile.open(tar_path, "r:gz") as tar:
@@ -67,9 +73,11 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
                     [test]
                     path=output.yaml
                     target=clash
-                    ver=4
+                    insert=false
+                    new_name=true
+                    config=%(tpl_config)s
                     url=%(sub)s
-                    """ % {"sub": str(sub)}
+                    """ % {"sub": str(sub), "tpl_config": str(tpl_config)}
                 )
             )
         
@@ -160,9 +168,8 @@ class Env:
                 # download geoip.metadb
                 utils.download_file(
                     urls = [
-                        "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb",
-                        "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb",
                         "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb",
+                        "https://github.com/MetaCubeX/meta-rules-dat/blob/release/geoip.metadb",
                     ],
                     path = self.workdir / "geoip.metadb",
                     desc = "Downloading geoip.metadb..."
@@ -305,21 +312,7 @@ class EnvsManager:
         if "base" not in self.envs:
             self.create_env("base")
         if "default" not in self.envs:
-            self.create_env("default", [
-                "https://proxy.v2gh.com/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-                "https://ghproxy.net/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-                "https://cf.ghproxy.cc/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-                "https://jsd.cdn.zzko.cn/gh/Pawdroid/Free-servers@main/sub",
-                "https://jsd.onmicrosoft.cn/gh/Pawdroid/Free-servers@main/sub",
-                "https://fastraw.ixnic.net/Pawdroid/Free-servers/main/sub",
-                "https://github.moeyy.xyz/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-                "https://mirror.ghproxy.com/https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-                "https://cdn.jsdelivr.us/gh/Pawdroid/Free-servers@main/sub",
-                "https://fastly.jsdelivr.net/gh/Pawdroid/Free-servers@main/sub",
-                "https://gcore.jsdelivr.net/gh/Pawdroid/Free-servers@main/sub",
-                "https://raw.cachefly.998111.xyz/Pawdroid/Free-servers/main/sub",
-                "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub",
-            ])
+            self.create_env("default", "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub")
 
     def create_env(self, *args, **kwargs) -> Env:
         """

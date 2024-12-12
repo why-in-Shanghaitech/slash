@@ -4,6 +4,7 @@ import requests
 import socket
 import tempfile
 import subprocess
+import re
 import os
 import psutil
 import filelock
@@ -20,6 +21,86 @@ from rich.progress import (
     TimeRemainingColumn,
     TransferSpeedColumn
 )
+
+
+PROXY_RULES = [
+    [
+        # raw.githubusercontent.com
+        r"^https?://raw.githubusercontent.com/([^/]*)/([^/]*)/([^/]*)/(.*)$",
+        [
+            # jsDelivr
+            r"https://cdn.jsdelivr.net/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://fastly.jsdelivr.net/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://gcore.jsdelivr.net/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://testingcf.jsdelivr.net/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://jsd.cdn.zzko.cn/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://jsd.onmicrosoft.cn/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+
+            # gh-proxy
+            r"https://ghp.ci/\g<0>",
+            r"https://proxy.v2gh.com/\g<0>",
+            r"https://ghproxy.net/\g<0>",
+            r"https://cf.ghproxy.cc/\g<0>",
+            r"https://github.moeyy.xyz/\g<0>",
+            r"https://ghps.cc/\g<0>",
+            r"https://hub.gitmirror.com/\g<0>",
+            r"https://gh.api.99988866.xyz/\g<0>",
+        ],
+    ],
+    [
+        # github.com release download
+        r"^https?://github.com/([^/]*)/([^/]*)/releases/download/([^/]*)/(.*)$",
+        [
+            # gh-proxy
+            r"https://ghp.ci/\g<0>",
+            r"https://proxy.v2gh.com/\g<0>",
+            r"https://ghproxy.net/\g<0>",
+            r"https://cf.ghproxy.cc/\g<0>",
+            r"https://github.moeyy.xyz/\g<0>",
+            r"https://ghps.cc/\g<0>",
+            r"https://hub.gitmirror.com/\g<0>",
+            r"https://gh.api.99988866.xyz/\g<0>",
+        ]
+    ],
+    [
+        # github files
+        r"^https?://github.com/([^/]*)/([^/]*)/blob/([^/]*)/(.*)$",
+        [
+            # jsDelivr
+            r"https://cdn.jsdelivr.net/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://fastly.jsdelivr.net/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://gcore.jsdelivr.net/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://testingcf.jsdelivr.net/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://jsd.cdn.zzko.cn/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+            r"https://jsd.onmicrosoft.cn/gh/\g<1>/\g<2>@\g<3>/\g<4>",
+
+            # gh-proxy (may jump to jsDelivr)
+            r"https://ghp.ci/\g<0>",
+            r"https://proxy.v2gh.com/\g<0>",
+            r"https://ghproxy.net/\g<0>",
+            r"https://cf.ghproxy.cc/\g<0>",
+            r"https://github.moeyy.xyz/\g<0>",
+            r"https://ghps.cc/\g<0>",
+            r"https://hub.gitmirror.com/\g<0>",
+            r"https://gh.api.99988866.xyz/\g<0>",
+        ]
+    ],
+    [
+        # github archive
+        r"^https?://github.com/([^/]*)/([^/]*)/archive/(.*)$",
+        [
+            # gh-proxy
+            r"https://ghp.ci/\g<0>",
+            r"https://proxy.v2gh.com/\g<0>",
+            r"https://ghproxy.net/\g<0>",
+            r"https://cf.ghproxy.cc/\g<0>",
+            r"https://github.moeyy.xyz/\g<0>",
+            r"https://ghps.cc/\g<0>",
+            r"https://hub.gitmirror.com/\g<0>",
+            r"https://gh.api.99988866.xyz/\g<0>",
+        ]
+    ]
+]
 
 class Logger:
     def __init__(self) -> None:
@@ -158,6 +239,19 @@ def download_file(
 
     if not isinstance(urls, list):
         urls = [urls]
+
+    # apply proxy if it matches the pattern
+    updated_urls = []
+    for url in urls:
+        updated_urls.append(url)
+        for rule in PROXY_RULES:
+            pattern, replacements = rule
+            if re.match(pattern, url):
+                for replacement in replacements:
+                    updated_url = re.sub(pattern, replacement, url)
+                    updated_urls.append(updated_url)
+                break
+    urls = updated_urls
     
     if isinstance(path, str):
         path = Path(path)
