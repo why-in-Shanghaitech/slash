@@ -13,6 +13,7 @@ import time
 from faker import Faker
 from textwrap import dedent
 from rich.console import Console
+from rich.status import Status
 from rich.progress import (
     BarColumn,
     DownloadColumn,
@@ -118,7 +119,7 @@ class Logger:
     def error(self, *args, **kwargs) -> None:
         self.console.log("[red]ERRO[/red] |", *args, **kwargs)
     
-    def status(self, *args, **kwargs):
+    def status(self, *args, **kwargs) -> Status:
         return self.console.status(*args, **kwargs)
 
     def mute(self) -> None:
