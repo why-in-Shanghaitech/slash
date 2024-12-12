@@ -185,14 +185,15 @@ class Service:
             service = cls(pid, fp.port, (fp_ctl.port, secret), env, [job])
 
             # wait for the service to start
-            retries = 30
+            timeout = 150
             interval = 5
             with logger.status("Waiting the service to be established...") as status:
-                cnt = 0
+                start = time.time()
+                time.sleep(interval)
                 while not service.is_operational():
-                    cnt += 1
-                    if cnt < retries:
-                        status.update(f"Waiting the service to be established ({cnt}/{retries})...")
+                    duration = time.time() - start
+                    if duration < timeout:
+                        status.update(f"Waiting the service to be established (ETA {time.strftime('%M:%S', time.localtime(timeout - duration))})...")
                         time.sleep(interval) # wait for the service to start
                     else:
                         logger.error("Service establish failed.")
