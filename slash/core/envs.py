@@ -118,12 +118,15 @@ class Env:
     def workdir(self) -> Path:
         return ENVS_DIR / self.name
     
-    def save(self) -> None:
+    def save(self, path: Path = None) -> None:
         """
         Save the environment.
         """
-        self.workdir.mkdir(parents=True, exist_ok=True)
-        self.save_to(self.workdir / "env.json")
+        if path is None:
+            path = self.workdir
+
+        path.mkdir(parents=True, exist_ok=True)
+        self.save_to(path / "env.json")
     
     def save_to(self, path: Path) -> None:
         """
@@ -147,7 +150,7 @@ class Env:
         """
         shutil.rmtree(self.workdir, ignore_errors=True)
     
-    def update(self) -> bool:
+    def update(self, workdir: Path = None) -> bool:
         """
         Update the environment.
         It is okay if the update fails, as the environment will automatically update if the config file is not found when activated, or we can still use the old config file if the config file already exists.
@@ -156,20 +159,24 @@ class Env:
             is_updated: bool
                 Whether the update is successful.
         """
+        if workdir is None:
+            workdir = self.workdir
+        workdir.mkdir(parents=True, exist_ok=True)
+
         try:
             if self.subscriptions:
                 # download the subscription
                 utils.download_file(
                     urls = self.subscriptions,
-                    path = self.workdir / "config.yaml.tmp",
+                    path = workdir / "config.yaml.tmp",
                     desc = "Downloading subscription..."
                 )
 
                 # convert the subscription
-                convert(self.workdir / "config.yaml.tmp", self.workdir / "config.yaml")
+                convert(workdir / "config.yaml.tmp", workdir / "config.yaml")
 
                 # remove the temp file
-                (self.workdir / "config.yaml.tmp").unlink()
+                (workdir / "config.yaml.tmp").unlink()
 
                 # download geoip.metadb
                 utils.download_file(
@@ -177,17 +184,17 @@ class Env:
                         "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb",
                         "https://github.com/MetaCubeX/meta-rules-dat/blob/release/geoip.metadb",
                     ],
-                    path = self.workdir / "geoip.metadb",
+                    path = workdir / "geoip.metadb",
                     desc = "Downloading geoip.metadb..."
                 )
 
             else:
                 # create an empty subscription file
-                with open(self.workdir / "config.yaml", 'w') as f:
+                with open(workdir / "config.yaml", 'w') as f:
                     f.write("")
 
             self.last_updated = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-            self.save()
+            self.save(workdir)
             return True
 
         except Exception as e:
@@ -338,34 +345,36 @@ class EnvsManager:
         if env.name in self.envs:
             raise ValueError(f"Environment '{env.name}' already exists.")
         
-        # create the environment folder
-        env.save()
+        # process in the temp directory
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workdir = Path(tmpdir)
 
-        # download the subscription
-        succ = env.update()
+            # download the subscription
+            succ = env.update(workdir)
 
-        if not succ:
-            logger.error(f"Failed to create the environment '{env.name}'.")
-            env.destory()
-            return None
+            if not succ:
+                logger.error(f"Failed to create the environment '{env.name}'.")
+                return None
+            
+            # move the file
+            shutil.move(workdir, env.workdir)
+            self.envs[env.name] = env
 
-        # print the message
-        logger.info(f"environment location: {env.workdir}")
-        messages = [
-            "#",
-            "# To activate this environment, use",
-            "#",
-            f"#     $ slash activate {env.name}",
-            "#",
-            "# To deactivate this environment, use",
-            "#",
-            "#     $ slash deactivate",
-            ""
-        ]
-        for message in messages:
-            logger.info(message)
-        
-        self.envs[env.name] = env
+            # print the message
+            logger.info(f"environment location: {env.workdir}")
+            messages = [
+                "#",
+                "# To activate this environment, use",
+                "#",
+                f"#     $ slash activate {env.name}",
+                "#",
+                "# To deactivate this environment, use",
+                "#",
+                "#     $ slash deactivate",
+                ""
+            ]
+            for message in messages:
+                logger.info(message)
         
         return env
 
