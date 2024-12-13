@@ -209,21 +209,21 @@ class Env:
         """
         config_path = self.workdir / "config.yaml"
 
-        # download the subscriptions
-        if not config_path.exists():
+        def load_from(path: Path) -> dict:
+            with open(path, "r") as f:
+                content = yaml.safe_load(f)
+            return {} if content is None else content
 
+        # if the file is not found or corrupted, try to update it
+        try:
+            return load_from(config_path)
+        except (FileNotFoundError, yaml.YAMLError):
             if not self.update():
                 # still error in processing the script, throw an error.
-                raise FileNotFoundError("The config file is not found.")
+                raise FileNotFoundError("The config file is not found or corrupted, we also failed to update it.")
 
-        content = None
-        with open(config_path, "r") as f:
-            content = yaml.safe_load(f)
-        
-        if content is None:
-            content = {}
-        
-        return content
+        # try to load the file again, this time raise an error if it still fails
+        return load_from(config_path)
     
     def _set_config(self, content: dict):
         """
