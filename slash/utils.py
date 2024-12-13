@@ -220,24 +220,6 @@ def download_file(
 
     write_callback should be a function with the source and target file descriptors as input.
     """
-    progress = Progress(
-        TextColumn("[bold blue]{task.fields[filename]}", justify="right"),
-        TextColumn(f"[bold green]({{task.fields[idx]}} / {len(urls)})[/bold green]", justify="right"),
-        BarColumn(bar_width=None),
-        "[progress.percentage]{task.percentage:>3.1f}%",
-        "•",
-        DownloadColumn(),
-        "•",
-        TransferSpeedColumn(),
-        "•",
-        TimeRemainingColumn(),
-
-        # do not leave the progress bar hanging
-        transient=True,
-        # use logger console
-        console=logger.console
-    )
-
     if not isinstance(urls, list):
         urls = [urls]
 
@@ -259,6 +241,24 @@ def download_file(
     
     if path.exists():
         return
+
+    progress = Progress(
+        TextColumn("[bold blue]{task.fields[filename]}", justify="right"),
+        TextColumn(f"[bold green]({{task.fields[idx]}} / {len(urls)})[/bold green]", justify="right"),
+        BarColumn(bar_width=None),
+        "[progress.percentage]{task.percentage:>3.1f}%",
+        "•",
+        DownloadColumn(),
+        "•",
+        TransferSpeedColumn(),
+        "•",
+        TimeRemainingColumn(),
+
+        # do not leave the progress bar hanging
+        transient=True,
+        # use logger console
+        console=logger.console
+    )
 
     with progress:
         logger.info(desc)
