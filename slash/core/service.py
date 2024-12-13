@@ -295,30 +295,6 @@ class ServiceManager:
             service = Service.load(env)
             if service is not None:
                 self.services[env.name] = service
-        
-        # check dead jobs
-        self._check_dead_jobs()
-    
-    def _check_dead_jobs(self) -> None:
-        """
-        Check if there are dead jobs. If so, remove them.
-        """
-        pattern = r"^__pid_(?P<pid>\d+)_(?P<comment>[a-zA-Z0-9-]+)__$"
-
-        services = list(self.services.values())
-        for service in services:
-            for job in service.jobs:
-                match = re.match(pattern, job)
-                
-                if not match:
-                    continue
-
-                if not (Path('/proc') / match.group("pid")).exists():
-                    message = f"Job {job} of env '{service.env.name}' is dead."
-                    if match.group("comment") == "shell":
-                        message += " Forgot to run `slash deactivate` in other shells?"
-                    logger.warn(message)
-                    self.stop(service.env, job)
     
     def launch(self, env: Env, job: str) -> 'Service':
         """
@@ -327,8 +303,8 @@ class ServiceManager:
         Arguments:
             env: Env
                 The environment object.
-            jobs: List[str]
-                The list of jobs to be launched.
+            job: str
+                The name of job to be launched.
         """
         with SoftFileLock(env.workdir / "service_manager.lock"):
             # check if the service exists

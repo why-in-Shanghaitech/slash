@@ -1,4 +1,7 @@
-from typing import Dict
+from typing import Dict, Any
+from collections import OrderedDict
+from pathlib import Path
+import re
 import os
 import random
 from slash.core import Env, EnvsManager, ServiceManager, Service
@@ -6,14 +9,97 @@ import slash.utils as utils
 
 logger = utils.logger
 
+
+class Dispatcher:
+    """
+    The abstract class of service dispatcher. The only thing it does is to build the job string from
+    an identifier. The ServiceManager will call the validate method to automatically remove the dead jobs.
+    """
+    def build(self, id_: Any) -> str:
+        """
+        Build the job string through an identifier.
+        """
+        raise NotImplementedError
+
+    def validate(self, service: Service, job: str) -> bool:
+        """
+        Validate the existence of a job.
+
+        When ServiceManager is initalized, it will examine all the jobs by calling the validate method.
+        If the job is not valid, it will be removed from the service.
+        """
+        raise NotImplementedError
+
+
+class ShellDispatcher(Dispatcher):
+    """
+    A shell dispatcher that uses the shell comment to distinguish the jobs. The identifier will be
+    the pid of the process. If the job is dead, it will be removed.
+    """
+    def build(self, id_: int) -> str:
+        return f"__pid_{id_}_shell__"
+    
+    def validate(self, service: Service, job: str) -> bool:
+        match = re.match(r"^__pid_(?P<pid>\d+)_shell__$", job)
+        if not match: # this is not a shell job, bypass the validation
+            return True
+        
+        is_valid = (Path('/proc') / match.group("pid")).exists()
+        if not is_valid:
+            logger.warn(f"Job {job} of env '{service.env.name}' is dead. Forgot to run `slash deactivate` in other shells?")
+
+        return is_valid
+
+
+class WithStatementDispatcher(Dispatcher):
+    """
+    Used when the service is launched with a `with` statement. The job will be removed when the `with`
+    statement is exited.
+    """
+    def build(self, id_: str) -> str:
+        return f"__pid_{os.getpid()}_with_{id_}__"
+
+    def validate(self, service: Service, job: str) -> bool:
+        match = re.match(r"^__pid_(?P<pid>\d+)_with_(?P<salt>\w+)__$", job)
+        if not match: # this is not a multi job, bypass the validation
+            return True
+        
+        is_valid = (Path('/proc') / match.group("pid")).exists()
+        if not is_valid:
+            logger.warn(f"Job {job} of env '{service.env.name}' is dead.")
+
+        return is_valid
+
+
+DISPATCHERS = OrderedDict(
+    [
+        ("shell", ShellDispatcher()),
+        ("with", WithStatementDispatcher()),
+    ]
+)
+
+
 class Slash:
     def __init__(self, env_name: str = 'default') -> None:
         self.envs_manager = EnvsManager()
         self.service_manager = ServiceManager(self.envs_manager)
         self.env = self.envs_manager.get_env(env_name)
 
-        random_str = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=8))
-        self._with_jobname = f"__pid_{os.getpid()}_with-{random_str}__"
+        # for the with statement
+        self.salt = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=8))
+
+        self.validate()
+
+    def validate(self) -> None:
+        """
+        Check if there are dead jobs. If so, remove them.
+        """
+        services = list(self.service_manager.services.values())
+        for service in services:
+            for job in service.jobs:
+                for dispatcher in DISPATCHERS.values():
+                    if not dispatcher.validate(service, job):
+                        self.stop(service.env, job)
 
     def launch(self, job: str) -> 'Service':
         """
@@ -83,14 +169,14 @@ class Slash:
         return EnvsManager().get_envs()
     
     def __enter__(self) -> 'Slash':
-        service = self.launch(self._with_jobname)
+        service = self.launch(DISPATCHERS['with'].build(self.salt))
         self._old_envs = (os.environ.get('http_proxy', None), os.environ.get('https_proxy', None))
         os.environ['http_proxy'] = f"http://127.0.0.1:{service.port}"
         os.environ['https_proxy'] = f"http://127.0.0.1:{service.port}"
         return self
  
     def __exit__(self, type, value, trace) -> None:
-        self.stop(self._with_jobname)
+        self.stop(DISPATCHERS['with'].build(self.salt))
         if self._old_envs[0] is not None:
             os.environ['http_proxy'] = self._old_envs[0]
             os.environ['https_proxy'] = self._old_envs[1]

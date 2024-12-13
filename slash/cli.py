@@ -4,10 +4,13 @@ import shlex
 from pathlib import Path
 import argparse
 
-from slash import Slash
+from slash.slash import (
+    Slash,
+    DISPATCHERS,
+)
 from slash.core import (
     initialize,
-    shell
+    shell,
 )
 import slash.utils as utils
 
@@ -176,7 +179,8 @@ def main(*args, **kwargs):
                     logger.warn("http_proxy is already set. It will be overwritten.")
 
             # Activate the new environment
-            service = Slash(args.name).launch(f"__pid_{args.shell_pid}_shell__")
+            job = DISPATCHERS['shell'].build(args.shell_pid)
+            service = Slash(args.name).launch(job)
             scripts.append(shell.activate(args.name, service.port))
             print("\n".join(scripts))
 
@@ -189,7 +193,8 @@ def main(*args, **kwargs):
                 sys.exit(1)
 
             # Deactivate the current environment
-            Slash(cur_env).stop(f"__pid_{args.shell_pid}_shell__")
+            job = DISPATCHERS['shell'].build(args.shell_pid)
+            Slash(cur_env).stop(job)
             script = shell.deactivate()
             print(script)
     
