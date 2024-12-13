@@ -13,131 +13,131 @@ import slash.utils as utils
 
 logger = utils.logger
 
-def get_general_parser():
-    """
-    Parser for the general slash command.
-    """
-    parser = argparse.ArgumentParser(prog='slash', description='Slash command line interface')
-    parser.add_argument('command', help='The command to run. Options: run, init, shell, activate, deactivate, create, remove, env.', choices=['run', 'init', 'shell', 'activate', 'deactivate', 'create', 'remove', 'env'])
-    parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
+DSCP = """
+Slash command line interface
 
-    return parser
+Slash commands are very similar to conda commands. You can run a command with a Slash environment by using the `slash run` command. You can also create, remove, and list environments with the `slash env` command.
 
-def get_run_parser():
-    """
-    Parser for the `slash run` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash run', description='Run a command with a Slash environment')
-    parser.add_argument('-n', '--name', help='The name of the environment', default='default')
-    parser.add_argument('args', nargs=argparse.REMAINDER, help='The command to run')
+Quick Start:
+    # Run a command with the default environment
+    slash run wget google.com
 
-    return parser
+Advanced Usage:
+    # Initialize the Slash environment, then open a new terminal
+    slash init
+    # (In a new terminal) Create a new environment with a subscription
+    slash create -n myenv -f https://example.com/config.yaml
+    # Activate the environment
+    slash activate myenv
+    # Run a command with the environment
+    wget google.com
+    # Deactivate the environment
+    slash deactivate
 
-def get_create_parser():
-    """
-    Parser for the `slash create` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash create', description='Create a new Slash environment')
-    parser.add_argument('-n', '--name', help='The name of the environment', required=True)
-    parser.add_argument('-f', '--file', default=None, nargs='+', help='The subscriptions to the environment. It can be a path to the config file or a URL. You can specify multiple subscriptions and all these should point to the same config files. If None, an empty config file will be created.')
+    # List all environments
+    slash env list
+    # Remove the environment
+    slash remove myenv
+"""
 
-    return parser
-
-def get_remove_parser():
+def get_parser():
     """
-    Parser for the `slash remove` command.
+    Parser for the slash command line interface.
     """
-    parser = argparse.ArgumentParser(prog='slash remove', description='Remove a Slash environment')
-    parser.add_argument('-n', '--name', help='The name of the environment')
+    main_parser = argparse.ArgumentParser(prog='slash', description=DSCP, formatter_class=argparse.RawDescriptionHelpFormatter)
+    subparsers = main_parser.add_subparsers(title='commands', dest='command', required=True)
 
-    return parser
+    # slash run
+    parser_run = argparse.ArgumentParser(add_help=False, description='Run a command with a Slash environment')
+    parser_run.add_argument('-n', '--name', help='The name of the environment', default='default')
+    parser_run.add_argument('args', nargs=argparse.REMAINDER, help='The command to run')
+    subparsers.add_parser('run', parents=[parser_run], help=parser_run.description, description=parser_run.description)
 
-def get_shell_parser():
-    """
-    Parser for the shell slash command.
-    """
-    parser = argparse.ArgumentParser(prog='slash shell', description='Slash shell internal command')
-    parser.add_argument('command', help='The command to run', choices=['hook', 'activate', 'deactivate'])
-    parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
+    # slash init
+    parser_init = argparse.ArgumentParser(add_help=False, description='Initialize the Slash environment')
+    subparsers.add_parser('init', parents=[parser_init], help=parser_init.description, description=parser_init.description)
 
-    return parser
+    # slash activate
+    parser_activate = argparse.ArgumentParser(add_help=False, description='Activate the Slash environment')
+    parser_activate.add_argument('name', help='The name of the environment', default='default', nargs='?')
+    subparsers.add_parser('activate', parents=[parser_activate], help=parser_activate.description, description=parser_activate.description)
 
-def get_shell_activate_parser():
-    """
-    Parser for the `slash shell activate` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash activate', description='Activate a Slash environment')
-    parser.add_argument('name', help='The name of the environment', default='default', nargs='?')
-    parser.add_argument('--shell_pid', help=argparse.SUPPRESS, default='1')
+    # slash deactivate
+    parser_deactivate = argparse.ArgumentParser(add_help=False, description='Deactivate the Slash environment')
+    subparsers.add_parser('deactivate', parents=[parser_deactivate], help=parser_deactivate.description, description=parser_deactivate.description)
 
-    return parser
+    # slash create
+    parser_create = argparse.ArgumentParser(add_help=False, description='Create a new Slash environment')
+    parser_create.add_argument('-n', '--name', help='The name of the environment', required=True)
+    parser_create.add_argument('-f', '--file', default=None, nargs='+', help='The subscriptions to the environment. It can be a path to the config file or a URL. You can specify multiple subscriptions and all these should point to the same config files. If None, an empty config file will be created.')
+    subparsers.add_parser('create', parents=[parser_create], help=parser_create.description, description=parser_create.description)
 
-def get_shell_deactivate_parser():
-    """
-    Parser for the `slash shell activate` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash deactivate', description='Deactivate a Slash environment')
-    parser.add_argument('--shell_pid', help=argparse.SUPPRESS, default='1')
+    # slash remove
+    parser_remove = argparse.ArgumentParser(add_help=False, description='Remove a Slash environment')
+    parser_remove.add_argument('-n', '--name', help='The name of the environment')
+    subparsers.add_parser('remove', parents=[parser_remove], help=parser_remove.description, description=parser_remove.description)
 
-    return parser
 
-def get_env_parser():
-    """
-    Parser for the `slash env` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash env', description='Slash environment command')
-    parser.add_argument('command', help='The command to run', choices=['create', 'remove', 'list', 'update', 'info'])
-    parser.add_argument('args', nargs=argparse.REMAINDER, help='Arguments for the command')
+    ## shell subparsers
+    parser_shell = argparse.ArgumentParser(add_help=False, description='Slash shell internal command')
+    subparsers_shell = parser_shell.add_subparsers(title='shell_commands', dest='shell_command', required=True, help="Shell commands, used internally by the shell")
 
-    return parser
+    # slash shell hook
+    parser_hook = argparse.ArgumentParser(add_help=False, description='Hook the shell')
+    subparsers_shell.add_parser('hook', parents=[parser_hook], help=parser_hook.description, description=parser_hook.description)
 
-def get_env_create_parser():
-    """
-    Parser for the `slash env create` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash env create', description='Create a new Slash environment')
-    parser.add_argument('-n', '--name', help='The name of the environment', required=True)
-    parser.add_argument('-f', '--file', default=None, nargs='+', help='The subscriptions to the environment. It can be a path to the config file or a URL. You can specify multiple subscriptions and all these should point to the same config files. If None, an empty config file will be created.')
+    # slash shell activate
+    parser_activate = argparse.ArgumentParser(add_help=False, description='Activate a Slash environment')
+    parser_activate.add_argument('name', help='The name of the environment', default='default', nargs='?')
+    parser_activate.add_argument('--shell_pid', help=argparse.SUPPRESS, default='1')
+    subparsers_shell.add_parser('activate', parents=[parser_activate], help=parser_activate.description, description=parser_activate.description)
 
-    return parser
+    # slash shell deactivate
+    parser_deactivate = argparse.ArgumentParser(add_help=False, description='Deactivate a Slash environment')
+    parser_deactivate.add_argument('--shell_pid', help=argparse.SUPPRESS, default='1')
+    subparsers_shell.add_parser('deactivate', parents=[parser_deactivate], help=parser_deactivate.description, description=parser_deactivate.description)
 
-def get_env_remove_parser():
-    """
-    Parser for the `slash env remove` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash env remove', description='Remove a Slash environment')
-    parser.add_argument('-n', '--name', help='The name of the environment')
+    subparsers.add_parser('shell', parents=[parser_shell], help=parser_shell.description, description=parser_shell.description)
 
-    return parser
 
-def get_env_update_parser():
-    """
-    Parser for the `slash env update` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash env update', description='Update a Slash environment')
-    parser.add_argument('-n', '--name', help='The name of the environment', default=None)
+    ## env subparsers
+    parser_env = argparse.ArgumentParser(add_help=False, description='Slash environment command')
+    subparsers_env = parser_env.add_subparsers(title='env_commands', dest='env_command', required=True, help="Environment commands, used to manage environments")
 
-    return parser
+    # slash env create
+    subparsers_env.add_parser('create', parents=[parser_create], help=parser_create.description, description=parser_create.description)
 
-def get_env_info_parser():
-    """
-    Parser for the `slash env info` command.
-    """
-    parser = argparse.ArgumentParser(prog='slash env info', description='Show the info of a Slash environment')
-    parser.add_argument('-n', '--name', help='The name of the environment', default=None)
+    # slash env remove
+    subparsers_env.add_parser('remove', parents=[parser_remove], help=parser_remove.description, description=parser_remove.description)
 
-    return parser
+    # slash env list
+    parser_list = argparse.ArgumentParser(add_help=False, description='List all environments')
+    subparsers_env.add_parser('list', parents=[parser_list], help=parser_list.description, description=parser_list.description)
+
+    # slash env update
+    parser_update = argparse.ArgumentParser(add_help=False, description='Update a Slash environment')
+    parser_update.add_argument('-n', '--name', help='The name of the environment', default=None)
+    subparsers_env.add_parser('update', parents=[parser_update], help=parser_update.description, description=parser_update.description)
+
+    # slash env info
+    parser_info = argparse.ArgumentParser(add_help=False, description='Show the info of a Slash environment')
+    parser_info.add_argument('-n', '--name', help='The name of the environment', default=None)
+    subparsers_env.add_parser('info', parents=[parser_info], help=parser_info.description, description=parser_info.description)
+
+    subparsers.add_parser('env', parents=[parser_env], help=parser_env.description, description=parser_env.description)
+
+    return main_parser
+
 
 def main(*args, **kwargs):
-    args = get_general_parser().parse_args()
+    slash_exe = Path(sys.argv[0]).resolve()
+    args = get_parser().parse_args()
 
     if args.command == "run":
-        args = get_run_parser().parse_args(args.args)
         with Slash(env_name=args.name):
             os.system(shlex.join(args.args))
     
     elif args.command == "init":
-        slash_exe = Path(sys.argv[0]).resolve()
         initialize(slash_exe)
         
     elif args.command == "activate":
@@ -149,22 +149,17 @@ def main(*args, **kwargs):
         sys.exit(1)
     
     elif args.command == "create":
-        args = get_create_parser().parse_args(args.args)
         Slash.create(args.name, args.file)
     
     elif args.command == "remove":
-        args = get_remove_parser().parse_args(args.args)
         Slash.remove(args.name)
 
     elif args.command == "shell":
-        args = get_shell_parser().parse_args(args.args)
 
-        if args.command == "hook":
-            slash_exe = Path(sys.argv[0]).resolve()
+        if args.shell_command == "hook":
             print(shell.hook(slash_exe))
 
-        elif args.command == "activate":
-            args = get_shell_activate_parser().parse_args(args.args)
+        elif args.shell_command == "activate":
             cur_env = os.environ.get("SLASH_ENV", None)
             scripts = [""]
 
@@ -185,8 +180,7 @@ def main(*args, **kwargs):
             scripts.append(shell.activate(args.name, service.port))
             print("\n".join(scripts))
 
-        elif args.command == "deactivate":
-            args = get_shell_deactivate_parser().parse_args(args.args)
+        elif args.shell_command == "deactivate":
             cur_env = os.environ.get("SLASH_ENV", None)
 
             # Check if no environment is activated
@@ -200,17 +194,14 @@ def main(*args, **kwargs):
             print(script)
     
     elif args.command == "env":
-        args = get_env_parser().parse_args(args.args)
 
-        if args.command == "create":
-            args = get_env_create_parser().parse_args(args.args)
+        if args.env_command == "create":
             Slash.create(args.name, args.file)
         
-        elif args.command == "remove":
-            args = get_env_remove_parser().parse_args(args.args)
+        elif args.env_command == "remove":
             Slash.remove(args.name)
         
-        elif args.command == "list":
+        elif args.env_command == "list":
             envs = Slash.list()
             cur_env = os.environ.get("SLASH_ENV", None)
             
@@ -227,21 +218,19 @@ def main(*args, **kwargs):
             for line in s:
                 logger.info(line)
         
-        elif args.command == "update":
-            args = get_env_update_parser().parse_args(args.args)
+        elif args.env_command == "update":
             name = args.name if args.name is not None else os.environ.get("SLASH_ENV", None)
             if name is None:
-                logger.error("No environment is activated.")
+                logger.error("No environment is activated. Please specify the environment name with the `-n` flag.")
                 sys.exit(1)
             else:
                 Slash(name).update()
                 logger.info(f"Environment '{name}' updated.")
         
-        elif args.command == "info":
-            args = get_env_info_parser().parse_args(args.args)
+        elif args.env_command == "info":
             name = args.name if args.name is not None else os.environ.get("SLASH_ENV", None)
             if name is None:
-                logger.error("No environment is activated.")
+                logger.error("No environment is activated. Please specify the environment name with the `-n` flag.")
                 sys.exit(1)
             else:
                 info = Slash(name).info()
