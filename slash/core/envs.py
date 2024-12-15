@@ -259,7 +259,8 @@ class Env:
         self,
         port: Optional[int] = None,
         ui_folder: Optional[Union[str, Path]] = None,
-        local_only: bool = False
+        local_only: bool = False,
+        secret: Optional[str] = None
     ) -> str:
         """
         Set the controller of the environment.
@@ -271,6 +272,8 @@ class Env:
                 The folder of the UI. If None, the UI will be disabled.
             local_only: bool
                 Whether the controller is only accessible from the local machine.
+            secret: Optional[str]
+                The secret key of the controller. If None, a new secret key will be generated.
         
         Returns:
             secret: str
@@ -292,7 +295,7 @@ class Env:
         
         # set proper ip
         ip = "127.0.0.1" if local_only else "0.0.0.0"
-        secret = secrets.token_urlsafe()
+        secret = secret or secrets.token_urlsafe()
         config['external-controller'] = f"{ip}:{port}"
         config['secret'] = secret
 

@@ -142,25 +142,6 @@ class Service:
                 del os.environ["https_proxy"]
         
         return True
-    
-    def stop(self) -> None:
-        """
-        Stop the service.
-        """
-        proc = utils.get_process(self.pid)
-
-        if proc is not None:
-            proc.terminate()
-            with logger.status("Waiting the service to shut down..."):
-                try:
-                    proc.wait(timeout=30)
-                except psutil.TimeoutExpired:
-                    logger.error("Service shutdown failed.")
-                    exit(1)
-
-            logger.info("Service stopped.")
-        else:
-            logger.warn("Try to stop a service, but the service is not alive.")
 
     @classmethod
     def launch(cls, env: Env, job: str) -> 'Service':
@@ -212,6 +193,54 @@ class Service:
             logger.info("The service dashboard is available at:", ", ".join(service.get_controller_urls()))
 
             return service
+
+    def update(self) -> bool:
+        """
+        Update the service.
+        """
+        # if the service is not alive or not operational, do nothing
+        if not self.is_alive() or not self.is_operational():
+            return False
+
+        # update the config
+        port, secret = self.ctl
+        self.env.set_port(self.port)
+        self.env.set_controller(port, get_yacd_workdir(), secret=secret)
+        
+        # update the service
+        url = f'http://127.0.0.1:{port}/configs'
+        headers = {
+            'Content-Type': 'application/json',
+            "Authorization": f"Bearer {secret}"
+        }
+        payload = '{"path": "", "payload": ""}'
+        response = requests.put(url, headers=headers, data=payload)
+
+        if response.status_code != 204:
+            logger.warn(f"Service '{self.env.name}' update failed. The config file might have been changed, but the web service will remain unchanged.")
+            return False
+
+        logger.info(f"Service '{self.env.name}' updated.")
+        return True
+    
+    def stop(self) -> None:
+        """
+        Stop the service.
+        """
+        proc = utils.get_process(self.pid)
+
+        if proc is not None:
+            proc.terminate()
+            with logger.status("Waiting the service to shut down..."):
+                try:
+                    proc.wait(timeout=30)
+                except psutil.TimeoutExpired:
+                    logger.error("Service shutdown failed.")
+                    exit(1)
+
+            logger.info("Service stopped.")
+        else:
+            logger.warn("Try to stop a service, but the service is not alive.")
     
     @classmethod
     def load(cls, env: Env) -> Union['Service', None]:

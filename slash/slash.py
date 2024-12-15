@@ -208,8 +208,13 @@ class Slash:
     def update(self) -> bool:
         """
         Update the environment.
+        If the service is running, update the service as well.
         """
-        return self.env.update()
+        service = self.service_manager.services.get(self.env.name, None)
+        is_updated = self.env.update()
+        if is_updated and service is not None:
+            service.update()
+        return is_updated
     
     def info(self) -> Dict[str, str]:
         """
