@@ -1,82 +1,187 @@
-from typing import Dict, Any
-from collections import OrderedDict
+from typing import Dict, List
 from pathlib import Path
 import re
 import os
-import random
-from slash.core import Env, EnvsManager, ServiceManager, Service
+import time
+import json
+import filelock
+import sys
+import signal
+from slash.core import Env, EnvsManager, ServiceManager, Service, WORK_DIR
 import slash.utils as utils
 
 logger = utils.logger
 
 
-class Dispatcher:
+class DaemonPid:
+    def __init__(self, name: str):
+        self.name = name
+
+    @property
+    def deamon_pid(self) -> Path:
+        return WORK_DIR / 'daemon.pid'
+    
+    @property
+    def pid(self) -> int:
+        with filelock.SoftFileLock(self.deamon_pid.with_suffix('.lock')):
+            if self.deamon_pid.exists():
+                with open(self.deamon_pid, 'r') as f:
+                    data = json.load(f)
+                return data.get(self.name, None)
+            else:
+                with open(self.deamon_pid, 'w') as f:
+                    json.dump({}, f)
+        return None
+    
+    @pid.setter
+    def pid(self, pid: int):
+        with filelock.SoftFileLock(self.deamon_pid.with_suffix('.lock')):
+            with open(self.deamon_pid, 'r') as f:
+                data = json.load(f)
+            data[self.name] = pid
+            with open(self.deamon_pid, 'w') as f:
+                json.dump(data, f)
+
+    @pid.deleter
+    def pid(self):
+        with filelock.SoftFileLock(self.deamon_pid.with_suffix('.lock')):
+            with open(self.deamon_pid, 'r') as f:
+                data = json.load(f)
+            if self.name in data:
+                del data[self.name]
+            with open(self.deamon_pid, 'w') as f:
+                json.dump(data, f)
+    
+    @property
+    def is_running(self):
+        if not (ret := self.pid is not None and (Path('/proc') / str(self.pid)).exists()):
+            del self.pid
+        return ret
+
+
+class Daemon:
     """
-    The abstract class of service dispatcher. The only thing it does is to build the job string from
-    an identifier. The ServiceManager will call the validate method to automatically remove the dead jobs.
+    The abstract daemon class that manages the services.
+
+    The daemon will be started when the slash object is created, it will take down the pid of the
+    current process; after the process exits, the daemon will check the jobs corresponding to the
+    its type (shell, with, ...) and remove the dead ones every 60 seconds. If there are no jobs left,
+    the daemon will exit.
     """
-    def build(self, id_: Any) -> str:
+    # the identifier of the daemon, should be unique
+    name = None
+    # the loop interval (seconds)
+    interval = 60
+
+    def __init__(self):
+        self.envs_manager = EnvsManager()
+        self.service_manager = ServiceManager(self.envs_manager)
+        self.deamonpid = DaemonPid(self.name)
+
+    def launch_command(self) -> List[str]:
         """
-        Build the job string through an identifier.
+        Get the command to launch the daemon. Should be implemented by the subclass.
         """
         raise NotImplementedError
 
-    def validate(self, service: Service, job: str) -> bool:
+    def getid(self, job: str) -> str:
+        """
+        Get the unique identifier of the job. It will be passed to the validate method to check if the job is dead.
+        If the job is beyond the control of the daemon, return None. Should be implemented by the subclass.
+        """
+        raise NotImplementedError
+
+    def validate(self, jid: str) -> bool:
+        """
+        Validate the existence of a job. Should be implemented by the subclass.
+        """
+        raise NotImplementedError
+
+    def start(self):
+        """
+        Check if the daemon is running. If not, start the daemon.
+        """
+        if self.deamonpid.is_running:
+            return
+
+        # XXX: here we use utils.runbg instead of os.fork, because using fork will inherit all the
+        # memory pages of the parent process, which is not what we want. It is possible that the parent
+        # process uses a lot of memory, while the daemon should be as light as possible.
+        utils.runbg(self.launch_command())
+
+    def stop(self):
+        """
+        Stop the daemon.
+        """
+        if not self.deamonpid.is_running:
+            return
+
+        os.kill(self.deamonpid.pid, signal.SIGTERM)
+        while self.deamonpid.is_running:
+            time.sleep(1)
+        del self.deamonpid.pid
+
+    def loop(self, ppid: int):
+        """
+        Check the jobs every interval seconds. The loop only starts when the parent process exits.
+        """
+        # take down the pid of the current process
+        self.deamonpid.pid = os.getpid()
+
+        # wait for the parent process to exit
+        while (Path('/proc') / str(ppid)).exists():
+            time.sleep(self.interval)
+
+        # start the loop
+        while True:
+            jobs = [(service, job) for service in self.service_manager.services.values() for job in service.jobs]
+            jids = [(service, job, jid) for service, job in jobs if ((jid := self.getid(job)) is not None)]
+
+            if not jids:
+                break
+
+            for service, job, jid in jids:
+                if not self.validate(jid):
+                    self.service_manager.stop(service.env, job)
+
+            time.sleep(self.interval)
+        
+        # remove the pid file
+        del self.deamonpid.pid
+        exit(0)
+
+
+class ProcessDaemon(Daemon):
+    """
+    The process daemon that manages the jobs based on the process id.
+    """
+    name = 'pid'
+
+    def launch_command(self) -> List[str]:
+        """
+        Get the command to launch the daemon.
+        """
+        return [
+            sys.executable, # the python interpreter
+            "-c",
+            "from slash.slash import ProcessDaemon; ProcessDaemon().loop({})".format(
+                os.getpid()
+            ),
+        ]
+
+    def getid(self, job: str) -> str:
+        """
+        Get the unique identifier of the job. It will be passed to the validate method to check if the job is dead.
+        If the job is beyond the control of the daemon, return None.
+        """
+        match = re.match(r"^__pid_(?P<pid>\d+)_(?P<comment>\w+)__$", job)
+        return None if not match else match.group("pid")
+
+    def validate(self, jid: str) -> bool:
         """
         Validate the existence of a job.
-
-        When ServiceManager is initalized, it will examine all the jobs by calling the validate method.
-        If the job is not valid, it will be removed from the service.
         """
-        raise NotImplementedError
-
-
-class ShellDispatcher(Dispatcher):
-    """
-    A shell dispatcher that uses the shell comment to distinguish the jobs. The identifier will be
-    the pid of the process. If the job is dead, it will be removed.
-    """
-    def build(self, id_: int) -> str:
-        return f"__pid_{id_}_shell__"
-    
-    def validate(self, service: Service, job: str) -> bool:
-        match = re.match(r"^__pid_(?P<pid>\d+)_shell__$", job)
-        if not match: # this is not a shell job, bypass the validation
-            return True
-        
-        is_valid = (Path('/proc') / match.group("pid")).exists()
-        if not is_valid:
-            logger.warn(f"Job {job} of env '{service.env.name}' is dead. Forgot to run `slash deactivate` in other shells?")
-
-        return is_valid
-
-
-class WithStatementDispatcher(Dispatcher):
-    """
-    Used when the service is launched with a `with` statement. The job will be removed when the `with`
-    statement is exited.
-    """
-    def build(self, id_: str) -> str:
-        return f"__pid_{os.getpid()}_with_{id_}__"
-
-    def validate(self, service: Service, job: str) -> bool:
-        match = re.match(r"^__pid_(?P<pid>\d+)_with_(?P<salt>\w+)__$", job)
-        if not match: # this is not a multi job, bypass the validation
-            return True
-        
-        is_valid = (Path('/proc') / match.group("pid")).exists()
-        if not is_valid:
-            logger.warn(f"Job {job} of env '{service.env.name}' is dead.")
-
-        return is_valid
-
-
-DISPATCHERS = OrderedDict(
-    [
-        ("shell", ShellDispatcher()),
-        ("with", WithStatementDispatcher()),
-    ]
-)
+        return (Path('/proc') / jid).exists()
 
 
 class Slash:
@@ -85,21 +190,8 @@ class Slash:
         self.service_manager = ServiceManager(self.envs_manager)
         self.env = self.envs_manager.get_env(env_name)
 
-        # for the with statement
-        self.salt = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=8))
-
-        self.validate()
-
-    def validate(self) -> None:
-        """
-        Check if there are dead jobs. If so, remove them.
-        """
-        services = list(self.service_manager.services.values())
-        for service in services:
-            for job in service.jobs:
-                for dispatcher in DISPATCHERS.values():
-                    if not dispatcher.validate(service, job):
-                        self.stop(service.env, job)
+        # by default we start the process daemon
+        ProcessDaemon().start()
 
     def launch(self, job: str) -> 'Service':
         """
@@ -169,14 +261,14 @@ class Slash:
         return EnvsManager().get_envs()
     
     def __enter__(self) -> 'Slash':
-        service = self.launch(DISPATCHERS['with'].build(self.salt))
+        service = self.launch("__pid_{pid}_with__".format(pid=os.getpid()))
         self._old_envs = (os.environ.get('http_proxy', None), os.environ.get('https_proxy', None))
         os.environ['http_proxy'] = f"http://127.0.0.1:{service.port}"
         os.environ['https_proxy'] = f"http://127.0.0.1:{service.port}"
         return self
  
     def __exit__(self, type, value, trace) -> None:
-        self.stop(DISPATCHERS['with'].build(self.salt))
+        self.stop("__pid_{pid}_with__".format(pid=os.getpid()))
         if self._old_envs[0] is not None:
             os.environ['http_proxy'] = self._old_envs[0]
             os.environ['https_proxy'] = self._old_envs[1]

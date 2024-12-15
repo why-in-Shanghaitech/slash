@@ -4,7 +4,7 @@ import gzip
 import telnetlib
 import os
 import psutil
-import re
+import sys
 import time
 import requests
 import socket
@@ -202,7 +202,7 @@ class Service:
             if not launched:
                 logger.error("Service establish failed.")
                 service.stop()
-                exit(1)
+                sys.exit(1)
             
             # service established
             logger.info("Service established.")
@@ -288,13 +288,22 @@ class Service:
 
 class ServiceManager:
     def __init__(self, envs_manager: EnvsManager) -> None:
-        self.services: Dict[str, Service] = {}
+        self.envs_manager = envs_manager
+
+    @property
+    def services(self) -> Dict[str, Service]:
+        """
+        Return the services. Hot reload from disk.
+        """
+        services: Dict[str, Service] = {}
 
         # load services from disk
-        for env in envs_manager.get_envs().values():
+        for env in self.envs_manager.get_envs().values():
             service = Service.load(env)
             if service is not None:
-                self.services[env.name] = service
+                services[env.name] = service
+
+        return services
     
     def launch(self, env: Env, job: str) -> 'Service':
         """
@@ -307,24 +316,26 @@ class ServiceManager:
                 The name of job to be launched.
         """
         with SoftFileLock(env.workdir / "service_manager.lock"):
-            # check if the service exists
-            if env.name in self.services:
-                service = self.services[env.name]
-                if service.is_alive():
-                    if job in service.jobs:
-                        logger.error(f"Try to launch {job} for {env.name}, but job is already running.")
-                        raise ValueError(f"Job {job} is already running.")
-                    else:
-                        service.jobs.append(job)
-                        service.save()
-                        return service
-                else:
-                    logger.error(f"Try to launch {job} for {env.name}, but service is not alive.")
-                    del self.services[env.name]
-                
-            # launch a new service
-            service = Service.launch(env, job)
-            self.services[env.name] = service
+            service = self.services.get(env.name, None)
+
+            # if the service does not exist, launch a new one
+            if service is None:
+                service = Service.launch(env, job)
+                service.save()
+                return service
+
+            # check if the service is alive (this should not happen)
+            if not service.is_alive():
+                logger.error(f"Try to launch {job} for {env.name}, but service is not alive.")
+                raise ValueError(f"Service of {env.name} is not alive.")
+            
+            # check if the job is already running
+            if job in service.jobs:
+                logger.error(f"Try to launch {job} for {env.name}, but job is already running.")
+                raise ValueError(f"Job {job} is already running.")
+            
+            # add the job to the service
+            service.jobs.append(job)
             service.save()
             return service
     
@@ -333,15 +344,17 @@ class ServiceManager:
         Stop a service.
         """
         with SoftFileLock(env.workdir / "service_manager.lock"):
-            if env.name not in self.services:
+            service = self.services.get(env.name, None)
+
+            # if the service does not exist, do nothing
+            if service is None:
                 logger.error(f"Try to stop {job} for {env.name}, but service of {env.name} not found.")
                 return
 
-            # get the service
-            service = self.services[env.name]
+            # check if the service is alive
             if not service.is_alive():
                 logger.error(f"Try to stop {job} for {env.name}, but service of {env.name} not alive.")
-            
+
             # remove the job from the service
             if job in service.jobs:
                 service.jobs.remove(job)
@@ -351,6 +364,4 @@ class ServiceManager:
             # stop the service if no jobs are running
             if len(service.jobs) == 0:
                 service.stop()
-                del self.services[env.name]
             service.save()
-    

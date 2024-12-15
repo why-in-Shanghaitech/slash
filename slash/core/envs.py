@@ -312,20 +312,27 @@ class Env:
 class EnvsManager:
 
     def __init__(self):
-        self.envs: Dict[str, Env] = {}
+        # check default envs
+        if "base" not in self.envs:
+            self.create_env("base")
+        if "default" not in self.envs:
+            self.create_env("default", "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub")
+
+    @property
+    def envs(self) -> Dict[str, Env]:
+        """
+        Get all environments. Hot reload from disk.
+        """
+        envs: Dict[str, Env] = {}
 
         # load envs from disk
         ENVS_DIR.mkdir(parents=True, exist_ok=True)
         for env_folder in ENVS_DIR.iterdir():
             env_file = env_folder / "env.json"
             env = Env.load_from(env_file)
-            self.envs[env.name] = env
-        
-        # check default envs
-        if "base" not in self.envs:
-            self.create_env("base")
-        if "default" not in self.envs:
-            self.create_env("default", "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub")
+            envs[env.name] = env
+
+        return envs
 
     def create_env(self, *args, **kwargs) -> Env:
         """
@@ -358,7 +365,6 @@ class EnvsManager:
             
             # move the file
             shutil.move(workdir, env.workdir)
-            self.envs[env.name] = env
 
             # print the message
             logger.info(f"environment location: {env.workdir}")
@@ -388,8 +394,6 @@ class EnvsManager:
             sys.exit(1)
         
         self.envs.get(name).destory()
-        del self.envs[name]
-
         logger.info(f"Environment '{name}' has been removed.")
 
     def get_env(self, name):
