@@ -3,16 +3,17 @@ from pathlib import Path
 import json
 import time
 import tempfile
-import yaml
 import shutil
 import tarfile
 import subprocess
 import secrets
 import sys
+from ruamel.yaml import YAML, YAMLError
 import slash.utils as utils
 from slash.core.constants import WORK_DIR, ENVS_DIR
 
 logger = utils.logger
+yaml = YAML()
 
 def convert(sub: Union[str, Path], tgt: Path) -> Path:
     """
@@ -211,13 +212,13 @@ class Env:
 
         def load_from(path: Path) -> dict:
             with open(path, "r") as f:
-                content = yaml.safe_load(f)
+                content = yaml.load(f)
             return {} if content is None else content
 
         # if the file is not found or corrupted, try to update it
         try:
             return load_from(config_path)
-        except (FileNotFoundError, yaml.YAMLError):
+        except (FileNotFoundError, YAMLError):
             if not self.update():
                 # still error in processing the script, throw an error.
                 raise FileNotFoundError("The config file is not found or corrupted, we also failed to update it.")
