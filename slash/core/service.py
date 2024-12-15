@@ -311,9 +311,16 @@ class ServiceManager:
             if env.name in self.services:
                 service = self.services[env.name]
                 if service.is_alive():
-                    service.jobs.append(job)
-                    service.save()
-                    return service
+                    if job in service.jobs:
+                        logger.error(f"Try to launch {job} for {env.name}, but job is already running.")
+                        raise ValueError(f"Job {job} is already running.")
+                    else:
+                        service.jobs.append(job)
+                        service.save()
+                        return service
+                else:
+                    logger.error(f"Try to launch {job} for {env.name}, but service is not alive.")
+                    del self.services[env.name]
                 
             # launch a new service
             service = Service.launch(env, job)
