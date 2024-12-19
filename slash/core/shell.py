@@ -1,7 +1,9 @@
-import slash.utils as utils
-from pathlib import Path
 import os
 import re
+from pathlib import Path
+
+import slash.utils as utils
+
 
 def hook(slash_exe: Path) -> str:
     """
@@ -65,14 +67,14 @@ def activate(env_name: str, port: int) -> str:
     2. Set the env stack variable.
     3. Setup proper PS1 for the shell.
     """
-    prompt_modifier = "/{env_name}\ ".format(env_name=env_name)
+    prompt_modifier = r"/{env_name}\ ".format(env_name=env_name)
     commands = [
         f'export http_proxy="http://127.0.0.1:{port}"',
         f'export https_proxy="http://127.0.0.1:{port}"',
         f'export SLASH_ENV={env_name}',
         f'export PS1="{prompt_modifier}$PS1"',
     ]
-    
+
     return "\n".join(commands)
 
 def deactivate() -> str:
@@ -86,10 +88,10 @@ def deactivate() -> str:
     ps1 = os.environ.get("PS1", "$")
     ps1 = re.sub(r"/\w+\\ ", "", ps1, count=1)
     commands = [
-        f'unset http_proxy',
-        f'unset https_proxy',
-        f'unset SLASH_ENV',
+         'unset http_proxy',
+         'unset https_proxy',
+         'unset SLASH_ENV',
         f'export PS1="{ps1}"',
     ]
-    
+
     return "\n".join(commands)

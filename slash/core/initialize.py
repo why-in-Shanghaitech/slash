@@ -1,8 +1,8 @@
-import os
 import re
-import sys
 from pathlib import Path
+
 import slash.utils as utils
+
 
 logger = utils.logger
 
@@ -13,7 +13,7 @@ def initialize(slash_exe: Path) -> bool:
 
     Arguments:
         slash_exe: The path to the slash executable.
-    
+
     Returns:
         is_modified: Whether the shell configuration file was modified.
     """
@@ -22,7 +22,7 @@ def initialize(slash_exe: Path) -> bool:
         r"([\s\S]*?)"
         r"# <<< slash initialize <<<(?:\n|\r\n)?"
     )
-    
+
     user_rc_path = Path.home() / ".bashrc"
 
     try:
@@ -51,7 +51,7 @@ def initialize(slash_exe: Path) -> bool:
     }
 
     replace_str = "__SLASH_REPLACE_ME_B612__"
-    
+
     rc_search = re.search(
         SLASH_INITIALIZE_RE_BLOCK,
         rc_content,
@@ -69,7 +69,7 @@ def initialize(slash_exe: Path) -> bool:
         rc_content = rc_content.replace(replace_str, slash_initialize_content)
     else:
         rc_content += f"\n{slash_initialize_content}\n"
-    
+
     with open(user_rc_path, "w") as fh:
         fh.write(rc_content)
 
@@ -81,5 +81,5 @@ def initialize(slash_exe: Path) -> bool:
     else:
         logger.info("{:<14}{}".format("no change", user_rc_path))
         logger.info("No action taken.")
-    
+
     return is_modified

@@ -1,22 +1,21 @@
-from typing import Tuple, List, Dict, Union
-from pathlib import Path
 import gzip
-import telnetlib
-import os
-import psutil
-import sys
-import time
-import requests
-import socket
 import json
+import os
+import socket
+import sys
 import tarfile
+import telnetlib
+import time
+from pathlib import Path
+from typing import Dict, List, Tuple, Union
+
+import psutil
+import requests
 from filelock import SoftFileLock
+
 import slash.utils as utils
-from slash.core import (
-    WORK_DIR,
-    Env,
-    EnvsManager
-)
+from slash.core import WORK_DIR, Env, EnvsManager
+
 
 logger = utils.logger
 
@@ -45,10 +44,10 @@ def get_yacd_workdir() -> Path:
         # extract the tarball
         with tarfile.open(tar_path, "r:gz") as tar:
             tar.extractall(workdir, filter=filter)
-        
+
         # remove the tarball
         tar_path.unlink()
-    
+
     return workdir
 
 def get_executable() -> Path:
@@ -74,9 +73,9 @@ def get_executable() -> Path:
             desc = "Downloading binary...",
             write_callback = lambda src, tgt: tgt.write(gzip.decompress(src.read()))
         )
-        
+
         exec_path.chmod(mode = 484) # rwxr--r--
-    
+
     return exec_path
 
 
@@ -88,14 +87,14 @@ class Service:
             self.ctl = tuple(ctl) # (ctl_port, secret)
         self.env = env
         self.jobs = jobs
-    
+
     def get_controller_urls(self) -> List[str]:
         """
         Return the controller urls.
         """
         if self.ctl is None:
             return []
-        
+
         port, secret = self.ctl
 
         hostname = socket.gethostname()
@@ -104,13 +103,13 @@ class Service:
             f'http://127.0.0.1:{port}/ui/?hostname=127.0.0.1&port={port}&secret={secret}',
             f'http://{ip_address}:{port}/ui/?hostname={ip_address}&port={port}&secret={secret}'
         ]
-    
+
     def is_alive(self) -> bool:
         """
         Check if the service is alive.
         """
         return utils.get_process(self.pid) is not None
-    
+
     def is_operational(self) -> bool:
         """
         Check if the service is operational.
@@ -122,7 +121,7 @@ class Service:
         # 1. check that we can establish a connection
         try:
             telnetlib.Telnet("localhost", int(self.port), timeout=3)
-        except ConnectionRefusedError: 
+        except ConnectionRefusedError:
             return False
 
         # 2. check that the service is ready
@@ -140,7 +139,7 @@ class Service:
                 os.environ["https_proxy"] = original_proxy
             else:
                 del os.environ["https_proxy"]
-        
+
         return True
 
     @classmethod
@@ -179,12 +178,12 @@ class Service:
                     time.sleep(interval) # wait for the service to start
                 else:
                     launched = True
-            
+
             if not launched:
                 logger.error("Service establish failed.")
                 service.stop()
                 sys.exit(1)
-            
+
             # service established
             logger.info("Service established.")
             time.sleep(interval) # wait for the service to be fully operational
@@ -206,7 +205,7 @@ class Service:
         port, secret = self.ctl
         self.env.set_port(self.port)
         self.env.set_controller(port, get_yacd_workdir(), secret=secret)
-        
+
         # update the service
         url = f'http://127.0.0.1:{port}/configs'
         headers = {
@@ -222,7 +221,7 @@ class Service:
 
         logger.info(f"Service '{self.env.name}' updated.")
         return True
-    
+
     def stop(self) -> None:
         """
         Stop the service.
@@ -241,14 +240,14 @@ class Service:
             logger.info("Service stopped.")
         else:
             logger.warn("Try to stop a service, but the service is not alive.")
-    
+
     @classmethod
     def load(cls, env: Env) -> Union['Service', None]:
         """
         Load a service from the default path.
         """
         return cls.load_from(env, env.workdir / "service.json")
-    
+
     @classmethod
     def load_from(cls, env: Env, path: Path) -> Union['Service', None]:
         """
@@ -270,22 +269,22 @@ class Service:
             # check if the service exists
             if hostname not in data:
                 return None
-            
+
             sdata = data[hostname]
             service = Service(sdata["pid"], sdata["port"], sdata["ctl"], env, sdata["jobs"])
 
             # check if the service is alive
             if not service.is_alive():
                 return None
-        
+
         return service
-    
+
     def save(self) -> None:
         """
         Save the service to a json file.
         """
         self.save_to(self.env.workdir / "service.json")
-    
+
     def save_to(self, path: Path) -> None:
         """
         Save the service to a json file.
@@ -333,7 +332,7 @@ class ServiceManager:
                 services[env.name] = service
 
         return services
-    
+
     def launch(self, env: Env, job: str) -> 'Service':
         """
         Launch a service and return a service object.
@@ -357,17 +356,17 @@ class ServiceManager:
             if not service.is_alive():
                 logger.error(f"Try to launch {job} for {env.name}, but service is not alive.")
                 raise ValueError(f"Service of {env.name} is not alive.")
-            
+
             # check if the job is already running
             if job in service.jobs:
                 logger.error(f"Try to launch {job} for {env.name}, but job is already running.")
                 raise ValueError(f"Job {job} is already running.")
-            
+
             # add the job to the service
             service.jobs.append(job)
             service.save()
             return service
-    
+
     def stop(self, env: Env, job: str) -> None:
         """
         Stop a service.

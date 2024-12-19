@@ -1,16 +1,19 @@
-from typing import List, Dict, Tuple, Optional, Union
-from pathlib import Path
 import json
-import time
-import tempfile
-import shutil
-import tarfile
-import subprocess
 import secrets
+import shutil
+import subprocess
 import sys
+import tarfile
+import tempfile
+import time
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+
 from ruamel.yaml import YAML, YAMLError
+
 import slash.utils as utils
-from slash.core.constants import WORK_DIR, ENVS_DIR
+from slash.core.constants import ENVS_DIR, WORK_DIR
+
 
 logger = utils.logger
 yaml = YAML()
@@ -40,7 +43,7 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
             path = tar_path,
             desc = "Downloading subconverter tarball..."
         )
-    
+
     # process in the temp directory
     with tempfile.TemporaryDirectory() as tmpdir:
 
@@ -56,7 +59,7 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
         # extract the tarball
         with tarfile.open(tar_path, "r:gz") as tar:
             tar.extractall(tmpdir, filter=lambda *args: args[0])
-        
+
         # find the executable
         work_dir = Path(tmpdir) / "subconverter"
         executable = work_dir / "subconverter"
@@ -64,7 +67,7 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
         # check if the executable exists
         if not executable.exists():
             raise FileNotFoundError("Subconverter executable not found.")
-        
+
         # setup the config
         config = work_dir / "generate.ini"
         with open(config, "w") as f:
@@ -81,22 +84,22 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
                     """ % {"sub": str(sub), "tpl_config": str(tpl_config)}
                 )
             )
-        
+
         # run the executable
         result = subprocess.run([str(executable), "-g"], cwd=work_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if result.returncode != 0:
             raise ValueError("Failed to convert the subscription.")
-        
+
         # move the file
         shutil.move(work_dir / "output.yaml", tgt)
-    
+
     return tgt
 
 class Env:
     def __init__(
-        self, 
-        name: str, 
+        self,
+        name: str,
         subscriptions: Optional[List[str]] = None,
         last_updated: Optional[str] = None
     ):
@@ -118,7 +121,7 @@ class Env:
     @property
     def workdir(self) -> Path:
         return ENVS_DIR / self.name
-    
+
     def save(self, path: Path = None) -> None:
         """
         Save the environment.
@@ -128,14 +131,14 @@ class Env:
 
         path.mkdir(parents=True, exist_ok=True)
         self.save_to(path / "env.json")
-    
+
     def save_to(self, path: Path) -> None:
         """
         Save as a json file.
         """
         with open(path, 'w') as f:
             json.dump(vars(self), f)
-    
+
     @classmethod
     def load_from(cls, path: Path) -> 'Env':
         """
@@ -144,13 +147,13 @@ class Env:
         with open(path, 'r') as f:
             data = json.load(f)
         return cls(**data)
-    
+
     def destory(self) -> None:
         """
         Destory the environment.
         """
         shutil.rmtree(self.workdir, ignore_errors=True)
-    
+
     def update(self, workdir: Path = None) -> bool:
         """
         Update the environment.
@@ -201,7 +204,7 @@ class Env:
         except Exception as e:
             logger.error(f"Failed to update the config file of environment '{self.name}': ({e.__class__.__name__}) {e}")
             return False
-    
+
     def _get_config(self) -> dict:
         """
         Get the subscription config content.
@@ -225,7 +228,7 @@ class Env:
 
         # try to load the file again, this time raise an error if it still fails
         return load_from(config_path)
-    
+
     def _set_config(self, content: dict):
         """
         Set the subscription config content.
@@ -234,7 +237,7 @@ class Env:
 
         with open(config_path, "w") as f:
             yaml.dump(content, f)
-    
+
     def set_port(self, port: int = 7890):
         """
         Set the port of the environment.
@@ -254,7 +257,7 @@ class Env:
 
         config['port'] = int(port)
         self._set_config(config)
-    
+
     def set_controller(
         self,
         port: Optional[int] = None,
@@ -274,7 +277,7 @@ class Env:
                 Whether the controller is only accessible from the local machine.
             secret: Optional[str]
                 The secret key of the controller. If None, a new secret key will be generated.
-        
+
         Returns:
             secret: str
                 The secret key of the controller. If the controller is disabled, it will return an empty string.
@@ -292,7 +295,7 @@ class Env:
         if port is None:
             self._set_config(config)
             return ""
-        
+
         # set proper ip
         ip = "127.0.0.1" if local_only else "0.0.0.0"
         secret = secret or secrets.token_urlsafe()
@@ -347,7 +350,7 @@ class EnvsManager:
                 The name of the environment.
             subscriptions: List[str]
                 The subscriptions to the environment. It can be a path to the config file or a URL. You can specify multiple subscriptions and all these should point to the same config files. If None, an empty config file will be created.
-        
+
         Returns:
             env: Env
                 The created environment.
@@ -355,7 +358,7 @@ class EnvsManager:
         env = Env(*args, **kwargs)
         if env.name in self.envs:
             raise ValueError(f"Environment '{env.name}' already exists.")
-        
+
         # process in the temp directory
         with tempfile.TemporaryDirectory() as tmpdir:
             workdir = Path(tmpdir)
@@ -366,7 +369,7 @@ class EnvsManager:
             if not succ:
                 logger.error(f"Failed to create the environment '{env.name}'.")
                 return None
-            
+
             # move the file
             shutil.move(workdir, env.workdir)
 
@@ -385,18 +388,18 @@ class EnvsManager:
             ]
             for message in messages:
                 logger.info(message)
-        
+
         return env
 
     def remove_env(self, name: str):
         if name not in self.envs:
             logger.error(f"Environment '{name}' not found.")
             sys.exit(1)
-        
+
         if name in ["base", "default"]:
             logger.error(f"Cannot remove the default environment '{name}'.")
             sys.exit(1)
-        
+
         self.envs.get(name).destory()
         logger.info(f"Environment '{name}' has been removed.")
 

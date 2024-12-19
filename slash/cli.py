@@ -1,15 +1,13 @@
-import sys
+import argparse
 import os
 import shlex
+import sys
 from pathlib import Path
-import argparse
 
-from slash.slash import Slash
-from slash.core import (
-    initialize,
-    shell,
-)
 import slash.utils as utils
+from slash.core import initialize, shell
+from slash.slash import Slash
+
 
 logger = utils.logger
 
@@ -136,10 +134,10 @@ def main(*args, **kwargs):
     if args.command == "run":
         with Slash(env_name=args.name):
             os.system(shlex.join(args.args))
-    
+
     elif args.command == "init":
         initialize(slash_exe)
-        
+
     elif args.command == "activate":
         logger.error("You haven't run `slash init` yet. Run `slash init` first.")
         sys.exit(1)
@@ -147,10 +145,10 @@ def main(*args, **kwargs):
     elif args.command == "deactivate":
         logger.error("You haven't run `slash init` yet. Run `slash init` first.")
         sys.exit(1)
-    
+
     elif args.command == "create":
         Slash.create(args.name, args.file)
-    
+
     elif args.command == "remove":
         Slash.remove(args.name)
 
@@ -194,19 +192,19 @@ def main(*args, **kwargs):
             Slash(cur_env).stop(job)
             script = shell.deactivate()
             print(script)
-    
+
     elif args.command == "env":
 
         if args.env_command == "create":
             Slash.create(args.name, args.file)
-        
+
         elif args.env_command == "remove":
             Slash.remove(args.name)
-        
+
         elif args.env_command == "list":
             envs = Slash.list()
             cur_env = os.environ.get("SLASH_ENV", None)
-            
+
             s = [
                 "# slash environments:",
                 "#",
@@ -216,10 +214,10 @@ def main(*args, **kwargs):
                     s.append(f"{name:<21} *  {env.workdir}")
                 else:
                     s.append(f"{name:<21}    {env.workdir}")
-            
+
             for line in s:
                 logger.info(line)
-        
+
         elif args.env_command == "update":
             name = args.name if args.name is not None else os.environ.get("SLASH_ENV", None)
             if name is None:
@@ -228,7 +226,7 @@ def main(*args, **kwargs):
             else:
                 Slash(name).update()
                 logger.info(f"Environment '{name}' updated.")
-        
+
         elif args.env_command == "info":
             name = args.name if args.name is not None else os.environ.get("SLASH_ENV", None)
             if name is None:
@@ -241,9 +239,9 @@ def main(*args, **kwargs):
                 logger.info(f"  subscriptions: {info['subscriptions']}")
                 logger.info(f"    last update: {info['last_updated']}")
                 if info["service_status"] == "Online":
-                    logger.info(f"        Service: [green]Online[/green]")
+                    logger.info( "        Service: [green]Online[/green]")
                     logger.info(f"           Port: {info['service_port']}")
                     logger.info(f"      Dashboard: {info['service_dashboard']}")
                 else:
-                    logger.info(f"        Service: [red]Offline[/red]")
+                    logger.info( "        Service: [red]Offline[/red]")
 
