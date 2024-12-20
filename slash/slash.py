@@ -26,7 +26,7 @@ class Slash:
 
     @property
     def env(self) -> Env:
-        return self.envs_manager.get_env(self.env_name, None)
+        return self.envs_manager.get_env(self.env_name)
 
     @property
     def service(self) -> Service:
