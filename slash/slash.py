@@ -10,15 +10,29 @@ logger = utils.logger
 
 
 class Slash:
+    """
+    The main interface of the Slash library.
+    """
+    daemons = [ProcessDaemon]
+
     def __init__(self, env_name: str = 'default') -> None:
+        self.env_name = env_name
         self.envs_manager = EnvsManager()
         self.service_manager = ServiceManager(self.envs_manager)
-        self.env = self.envs_manager.get_env(env_name)
 
-        # by default we start the process daemon
-        ProcessDaemon().start()
+        # start the daemon
+        for daemon in self.daemons:
+            daemon().start()
 
-    def launch(self, job: str) -> 'Service':
+    @property
+    def env(self) -> Env:
+        return self.envs_manager.get_env(self.env_name, None)
+
+    @property
+    def service(self) -> Service:
+        return self.service_manager.services.get(self.env_name, None)
+
+    def launch(self, job: str) -> Service:
         """
         Launch a job.
         """
@@ -35,9 +49,8 @@ class Slash:
         Update the environment.
         If the service is running, update the service as well.
         """
-        service = self.service_manager.services.get(self.env.name, None)
         is_updated = self.env.update()
-        if is_updated and service is not None:
+        if is_updated and (service := self.service) is not None:
             service.update()
         return is_updated
 
@@ -52,8 +65,7 @@ class Slash:
             'last_updated': self.env.last_updated,
         }
 
-        if self.service_manager.services.get(self.env.name, None) is not None:
-            service = self.service_manager.services[self.env.name]
+        if (service := self.service) is not None:
             info['service_status'] = 'Online'
             info['service_port'] = service.port
             info['service_dashboard'] = service.get_controller_urls()
