@@ -87,14 +87,14 @@ class Daemon:
         """
         raise NotImplementedError
 
-    def getid(self, job: str) -> str:
+    def getid(self, job: str) -> re.Match[str]:
         """
         Get the unique identifier of the job. It will be passed to the validate method to check if the job is dead.
         If the job is beyond the control of the daemon, return None. Should be implemented by the subclass.
         """
         raise NotImplementedError
 
-    def validate(self, jid: str) -> bool:
+    def validate(self, match: re.Match[str]) -> bool:
         """
         Validate the existence of a job. Should be implemented by the subclass.
         """
@@ -175,16 +175,15 @@ class ProcessDaemon(Daemon):
             ),
         ]
 
-    def getid(self, job: str) -> str:
+    def getid(self, job: str) -> re.Match[str]:
         """
         Get the unique identifier of the job. It will be passed to the validate method to check if the job is dead.
         If the job is beyond the control of the daemon, return None.
         """
-        match = re.match(r"^__pid_(?P<pid>\d+)_(?P<comment>\w+)__$", job)
-        return None if not match else match.group("pid")
+        return re.match(r"^__pid_(?P<pid>\d+)_(?P<comment>\w+)__$", job)
 
-    def validate(self, jid: str) -> bool:
+    def validate(self, match: re.Match[str]) -> bool:
         """
         Validate the existence of a job.
         """
-        return (Path('/proc') / jid).exists()
+        return (Path('/proc') / match.group("pid")).exists()
