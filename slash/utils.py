@@ -1,27 +1,21 @@
-from typing import List, Tuple, Union, Iterable, Optional
-from pathlib import Path
-import requests
-import socket
-import tempfile
-import subprocess
-import re
 import os
-import psutil
-import filelock
 import random
+import re
+import socket
+import subprocess
+import tempfile
 import time
-from faker import Faker
+from pathlib import Path
 from textwrap import dedent
+from typing import Iterable, List, Optional, Tuple, Union
+
+import filelock
+import psutil
+import requests
+from faker import Faker
 from rich.console import Console
+from rich.progress import BarColumn, DownloadColumn, Progress, TextColumn, TimeRemainingColumn, TransferSpeedColumn
 from rich.status import Status
-from rich.progress import (
-    BarColumn,
-    DownloadColumn,
-    Progress,
-    TextColumn,
-    TimeRemainingColumn,
-    TransferSpeedColumn
-)
 
 
 PROXY_RULES = [
@@ -106,7 +100,7 @@ PROXY_RULES = [
 class Logger:
     def __init__(self) -> None:
         self.console = Console(stderr=True)
-    
+
     def debug(self, *args, **kwargs) -> None:
         self.console.log("[blue]DEBUG[/blue] |", *args, **kwargs)
 
@@ -118,7 +112,7 @@ class Logger:
 
     def error(self, *args, **kwargs) -> None:
         self.console.log("[red]ERRO[/red] |", *args, **kwargs)
-    
+
     def status(self, *args, **kwargs) -> Status:
         return self.console.status(*args, **kwargs)
 
@@ -147,7 +141,7 @@ class FreePort:
 
         if self.ports is None:
             self.ports = range(20000, 30000)
-    
+
     @staticmethod
     def is_free(port: int) -> bool:
         """
@@ -182,9 +176,9 @@ class FreePort:
             else:
                 lock.release()
                 time.sleep(0.01)
-        
+
         raise TimeoutError('No free port available.')
-    
+
     def release(self) -> None:
         """
         Release the port.
@@ -197,7 +191,7 @@ class FreePort:
 
     def __enter__(self) -> 'FreePort':
         return self.acquire()
-    
+
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.release()
 
@@ -235,10 +229,10 @@ def download_file(
                     updated_urls.append(updated_url)
                 break
     urls = updated_urls
-    
+
     if isinstance(path, str):
         path = Path(path)
-    
+
     if path.exists():
         return
 
