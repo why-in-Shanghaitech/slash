@@ -17,18 +17,18 @@ Slash command line interface
 Slash commands are very similar to conda commands. You can run a command with a Slash environment by using the `slash run` command. You can also create, remove, and list environments with the `slash env` command.
 
 Quick Start:
-    # Run a command with the default environment
-    slash run wget google.com
+    # Create a new environment with a subscription
+    slash create -n myenv -f https://example.com/config.yaml
+    # Run a command with the newly created environment
+    slash run -n myenv wget huggingface.co
 
 Advanced Usage:
     # Initialize the Slash environment, then open a new terminal
     slash init
-    # (In a new terminal) Create a new environment with a subscription
-    slash create -n myenv -f https://example.com/config.yaml
-    # Activate the environment
+    # (In a new terminal) Activate the environment
     slash activate myenv
     # Run a command with the environment
-    wget google.com
+    wget huggingface.co
     # Deactivate the environment
     slash deactivate
 
@@ -47,7 +47,7 @@ def get_parser():
 
     # slash run
     parser_run = argparse.ArgumentParser(add_help=False, description='Run a command with a Slash environment')
-    parser_run.add_argument('-n', '--name', help='The name of the environment', default='default')
+    parser_run.add_argument('-n', '--name', help='The name of the environment', default='base')
     parser_run.add_argument('args', nargs=argparse.REMAINDER, help='The command to run')
     subparsers.add_parser('run', parents=[parser_run], help=parser_run.description, description=parser_run.description)
 
@@ -57,7 +57,7 @@ def get_parser():
 
     # slash activate
     parser_activate = argparse.ArgumentParser(add_help=False, description='Activate the Slash environment')
-    parser_activate.add_argument('name', help='The name of the environment', default='default', nargs='?')
+    parser_activate.add_argument('name', help='The name of the environment', default='base', nargs='?')
     subparsers.add_parser('activate', parents=[parser_activate], help=parser_activate.description, description=parser_activate.description)
 
     # slash deactivate
@@ -86,7 +86,7 @@ def get_parser():
 
     # slash shell activate
     parser_activate = argparse.ArgumentParser(add_help=False, description='Activate a Slash environment')
-    parser_activate.add_argument('name', help='The name of the environment', default='default', nargs='?')
+    parser_activate.add_argument('name', help='The name of the environment', default='base', nargs='?')
     parser_activate.add_argument('--shell_pid', help=argparse.SUPPRESS, default='1')
     subparsers_shell.add_parser('activate', parents=[parser_activate], help=parser_activate.description, description=parser_activate.description)
 

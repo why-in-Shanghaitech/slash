@@ -15,7 +15,7 @@ class Slash:
     """
     daemons = [ProcessDaemon]
 
-    def __init__(self, env_name: str = 'default') -> None:
+    def __init__(self, env_name: str = 'base') -> None:
         self.env_name = env_name
         self.envs_manager = EnvsManager()
         self.service_manager = ServiceManager(self.envs_manager)

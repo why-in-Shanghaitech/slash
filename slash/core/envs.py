@@ -322,8 +322,6 @@ class EnvsManager:
         # check default envs
         if "base" not in self.envs:
             self.create_env("base")
-        if "default" not in self.envs:
-            self.create_env("default", "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub")
 
     @property
     def envs(self) -> Dict[str, Env]:
@@ -396,7 +394,7 @@ class EnvsManager:
             logger.error(f"Environment '{name}' not found.")
             sys.exit(1)
 
-        if name in ["base", "default"]:
+        if name == "base":
             logger.error(f"Cannot remove the default environment '{name}'.")
             sys.exit(1)
 
