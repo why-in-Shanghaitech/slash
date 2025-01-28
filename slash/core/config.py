@@ -32,6 +32,7 @@ class ConfigManager:
         self._lock = SoftFileLock(CONFIG_PATH.with_suffix(".lock"))
         if not CONFIG_PATH.exists():
             logger.debug(f"Creating a new configuration file at {CONFIG_PATH}")
+            CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
             self.save({})
 
     def load(self) -> dict:
