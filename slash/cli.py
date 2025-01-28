@@ -201,8 +201,9 @@ def main(*args, **kwargs):
             else:
                 envs = ["http_proxy", "https_proxy"]
                 stash = {env: os.environ[env] for env in envs if env in os.environ}
-                if not stash:
+                if stash:
                     logger.warn("We notice that http_proxy is already set on your machine. It will be overwritten.")
+                else:
                     stash = None
 
             # Activate the new environment
