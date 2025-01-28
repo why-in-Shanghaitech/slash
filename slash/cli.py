@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import shlex
 import sys
@@ -197,7 +198,9 @@ def main(*args, **kwargs):
             if cur_env is not None:
                 Slash(cur_env).stop(job)
                 scripts.append(shell.deactivate())
-                stash = None
+                stash = os.environ.get("SLASH_STASH", None)
+                if stash is not None:
+                    stash = json.loads(stash)
             else:
                 envs = ["http_proxy", "https_proxy"]
                 stash = {env: os.environ[env] for env in envs if env in os.environ}
