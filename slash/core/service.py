@@ -172,15 +172,24 @@ class Service:
             interval = 5
             launched = False
             with logger.status("Waiting the service to be established...") as status:
-                start = time.time()
-                time.sleep(interval)
-                while not service.is_operational():
-                    if not service.is_alive() or (duration := time.time() - start) > timeout:
-                        break
-                    status.update(f"Waiting the service to be established (ETA {time.strftime('%M:%S', time.localtime(timeout - duration))})...")
-                    time.sleep(interval) # wait for the service to start
-                else:
-                    launched = True
+                try:
+                    start = time.time()
+                    time.sleep(interval)
+                    while not service.is_operational():
+                        if not service.is_alive() or (duration := time.time() - start) > timeout:
+                            break
+                        status.update(f"Waiting the service to be established (ETA {time.strftime('%M:%S', time.localtime(timeout - duration))})...")
+                        time.sleep(interval) # wait for the service to start
+                    else:
+                        launched = True
+                except KeyboardInterrupt:
+                    logger.error("Service establish interrupted.")
+                    service.stop()
+                    sys.exit(1)
+                except Exception as e:
+                    logger.error(f"Service establish failed: {e}")
+                    service.stop()
+                    sys.exit(1)
 
             if not launched:
                 logger.error("Service establish failed.")
