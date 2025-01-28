@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Union
 from ruamel.yaml import YAML, YAMLError
 
 import slash.utils as utils
+from slash.core.config import SlashConfig
 from slash.core.constants import ENVS_DIR, WORK_DIR
 
 
@@ -195,7 +196,18 @@ class Env:
             else:
                 # create an empty subscription file
                 with open(workdir / "config.yaml", 'w') as f:
-                    f.write("")
+                    yaml.dump({
+                        "proxy-groups": [
+                            {
+                                "name": "Select",
+                                "type": "select",
+                                "proxies": ["DIRECT"]
+                            }
+                        ],
+                        "rules": [
+                            ["MATCH,Select"]
+                        ]
+                    }, f)
 
             self.last_updated = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
             self.save(workdir)
@@ -314,6 +326,54 @@ class Env:
         self._set_config(config)
 
         return secret
+
+    def set_dialer_proxy(self, config: SlashConfig) -> bool:
+        """
+        Set the dialer proxy of the environment.
+        """
+        if config.http_server is None:
+            return False
+
+        _config = self._get_config()
+        if "proxies" not in _config:
+            _config["proxies"] = []
+        if "proxy-groups" not in _config:
+            _config["proxy-groups"] = []
+
+        # Step 1: set the http proxy
+        #         add a proxy "direct" to the config file
+        proxy = {
+            "name": "direct",
+            "type": "http",
+            "server": config.http_server,
+        }
+        if config.http_port is not None:
+            proxy["port"] = config.http_port
+
+        # Step 2: set the proxy
+        #         add the proxy to the config file
+        _config["proxies"].append(proxy)
+
+        # Step 3: setup the proxy group
+        #         add the proxy group "direct-group" to the config file
+        _config["proxy-groups"].append({
+            "name": "direct-group",
+            "type": "select",
+            "proxies": ["direct"]
+        })
+
+        # Step 4: add dialer to all other proxies
+        for p in _config["proxies"]:
+            if p["name"] != "direct":
+                p["dialer-proxy"] = "direct-group"
+
+        # Step 5: replace all direct in proxy groups
+        for pg in _config["proxy-groups"]:
+            if "proxies" in pg:
+                pg["proxies"] = [p if p != "DIRECT" else "direct" for p in pg["proxies"]]
+        self._set_config(_config)
+
+        return True
 
 
 class EnvsManager:

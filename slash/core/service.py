@@ -14,7 +14,7 @@ import requests
 from filelock import SoftFileLock
 
 import slash.utils as utils
-from slash.core import WORK_DIR, Env, EnvsManager
+from slash.core import WORK_DIR, ConfigManager, Env, EnvsManager
 
 
 logger = utils.logger
@@ -159,6 +159,9 @@ class Service:
 
             # set the controller
             secret = env.set_controller(fp_ctl.port, get_yacd_workdir())
+
+            # possibly set the dialer proxy
+            env.set_dialer_proxy(ConfigManager().get_config())
 
             # start the service
             pid = utils.runbg(['nohup', str(get_executable()), "-d", str(env.workdir)])
