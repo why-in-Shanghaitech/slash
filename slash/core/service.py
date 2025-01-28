@@ -217,6 +217,7 @@ class Service:
         port, secret = self.ctl
         self.env.set_port(self.port)
         self.env.set_controller(port, get_yacd_workdir(), secret=secret)
+        self.env.set_dialer_proxy(ConfigManager().get_config())
 
         # update the service
         url = f'http://127.0.0.1:{port}/configs'
