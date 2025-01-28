@@ -197,12 +197,13 @@ def main(*args, **kwargs):
             if cur_env is not None:
                 Slash(cur_env).stop(job)
                 scripts.append(shell.deactivate())
-                stash = {}
+                stash = None
             else:
                 envs = ["http_proxy", "https_proxy"]
                 stash = {env: os.environ[env] for env in envs if env in os.environ}
-                if stash:
+                if not stash:
                     logger.warn("We notice that http_proxy is already set on your machine. It will be overwritten.")
+                    stash = None
 
             # Activate the new environment
             service = Slash(args.name).launch(job)

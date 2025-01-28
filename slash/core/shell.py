@@ -61,7 +61,7 @@ def hook(slash_exe: Path) -> str:
     }
     return s
 
-def activate(env_name: str, port: int, stash: dict) -> str:
+def activate(env_name: str, port: int, stash: dict = None) -> str:
     """
     Generate a shell activation script.
 
@@ -76,8 +76,10 @@ def activate(env_name: str, port: int, stash: dict) -> str:
         f'export https_proxy=http://127.0.0.1:{port}',
         f'export SLASH_ENV={env_name}',
         f'export PS1="{prompt_modifier}$PS1"',
-        f'export SLASH_STASH={shlex.quote(json.dumps(stash))}'
     ]
+
+    if stash is not None:
+        commands.append(f'export SLASH_STASH={shlex.quote(json.dumps(stash))}')
 
     return "\n".join(commands)
 
