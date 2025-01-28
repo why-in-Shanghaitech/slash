@@ -168,11 +168,11 @@ class Service:
             service = cls(pid, fp.port, (fp_ctl.port, secret), env, [job])
 
             # wait for the service to start
-            timeout = 150
-            interval = 5
-            launched = False
-            with logger.status("Waiting the service to be established...") as status:
-                try:
+            try:
+                timeout = 150
+                interval = 5
+                launched = False
+                with logger.status("Waiting the service to be established...") as status:
                     start = time.time()
                     time.sleep(interval)
                     while not service.is_operational():
@@ -182,14 +182,14 @@ class Service:
                         time.sleep(interval) # wait for the service to start
                     else:
                         launched = True
-                except KeyboardInterrupt:
-                    logger.error("Service establish interrupted.")
-                    service.stop()
-                    sys.exit(1)
-                except Exception as e:
-                    logger.error(f"Service establish failed: {e}")
-                    service.stop()
-                    sys.exit(1)
+            except KeyboardInterrupt:
+                logger.error("Service establish interrupted.")
+                service.stop()
+                sys.exit(1)
+            except Exception as e:
+                logger.error(f"Service establish failed: {e}")
+                service.stop()
+                sys.exit(1)
 
             if not launched:
                 logger.error("Service establish failed.")
