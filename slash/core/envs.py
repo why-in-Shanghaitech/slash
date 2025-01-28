@@ -352,15 +352,21 @@ class Env:
 
         # Step 2: set the proxy
         #         add the proxy to the config file
-        _config["proxies"].append(proxy)
+        for idx in range(len(_config["proxies"])):
+            if _config["proxies"][idx]["name"] == "direct":
+                _config["proxies"][idx] = proxy
+                break
+        else:
+            _config["proxies"].append(proxy)
 
         # Step 3: setup the proxy group
         #         add the proxy group "direct-group" to the config file
-        _config["proxy-groups"].append({
-            "name": "direct-group",
-            "type": "select",
-            "proxies": ["direct"]
-        })
+        if not any(pg["name"] == "direct-group" for pg in _config["proxy-groups"]):
+            _config["proxy-groups"].append({
+                "name": "direct-group",
+                "type": "select",
+                "proxies": ["direct"]
+            })
 
         # Step 4: add dialer to all other proxies
         for p in _config["proxies"]:

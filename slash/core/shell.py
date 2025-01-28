@@ -1,5 +1,7 @@
+import json
 import os
 import re
+import shlex
 from pathlib import Path
 
 import slash.utils as utils
@@ -59,20 +61,22 @@ def hook(slash_exe: Path) -> str:
     }
     return s
 
-def activate(env_name: str, port: int) -> str:
+def activate(env_name: str, port: int, stash: dict) -> str:
     """
     Generate a shell activation script.
 
     1. Set the http_proxy and https_proxy environment variables.
     2. Set the env stack variable.
     3. Setup proper PS1 for the shell.
+    4. Remember previous proxy settings.
     """
     prompt_modifier = r"/{env_name}\ ".format(env_name=env_name)
     commands = [
-        f'export http_proxy="http://127.0.0.1:{port}"',
-        f'export https_proxy="http://127.0.0.1:{port}"',
+        f'export http_proxy=http://127.0.0.1:{port}',
+        f'export https_proxy=http://127.0.0.1:{port}',
         f'export SLASH_ENV={env_name}',
         f'export PS1="{prompt_modifier}$PS1"',
+        f'export SLASH_STASH={shlex.quote(json.dumps(stash))}'
     ]
 
     return "\n".join(commands)
@@ -84,6 +88,7 @@ def deactivate() -> str:
     1. Unset the http_proxy and https_proxy environment variables.
     2. Unset the env stack variable.
     3. Restore the PS1 for the shell.
+    4. Restore previous proxy settings
     """
     ps1 = os.environ.get("PS1", "$")
     ps1 = re.sub(r"/\w+\\ ", "", ps1, count=1)
@@ -93,5 +98,12 @@ def deactivate() -> str:
          'unset SLASH_ENV',
         f'export PS1="{ps1}"',
     ]
+
+    stash = os.environ.get("SLASH_STASH", None)
+    if stash is not None:
+        stash = json.loads(stash)
+        for key, value in stash.items():
+            commands.append(f'export {key}={shlex.quote(value)}')
+        commands.append('unset SLASH_STASH')
 
     return "\n".join(commands)

@@ -186,6 +186,7 @@ def main(*args, **kwargs):
 
         elif args.shell_command == "activate":
             cur_env = os.environ.get("SLASH_ENV", None)
+            job = "__pid_{pid}_shell__".format(pid=args.shell_pid)
             scripts = [""]
 
             # Check if the environment is already activated
@@ -194,16 +195,18 @@ def main(*args, **kwargs):
 
             # Deactivate the current environment
             if cur_env is not None:
-                Slash(cur_env).stop("slash")
+                Slash(cur_env).stop(job)
                 scripts.append(shell.deactivate())
+                stash = {}
             else:
-                if 'http_proxy' in os.environ or 'https_proxy' in os.environ:
-                    logger.warn("http_proxy is already set. It will be overwritten.")
+                envs = ["http_proxy", "https_proxy"]
+                stash = {env: os.environ[env] for env in envs if env in os.environ}
+                if stash:
+                    logger.warn("We notice that http_proxy is already set on your machine. It will be overwritten.")
 
             # Activate the new environment
-            job = "__pid_{pid}_shell__".format(pid=args.shell_pid)
             service = Slash(args.name).launch(job)
-            scripts.append(shell.activate(args.name, service.port))
+            scripts.append(shell.activate(args.name, service.port, stash))
             print("\n".join(scripts))
 
         elif args.shell_command == "deactivate":
