@@ -205,7 +205,7 @@ class Env:
                             }
                         ],
                         "rules": [
-                            ["MATCH,Select"]
+                            "MATCH,Select"
                         ]
                     }, f)
 

@@ -135,7 +135,7 @@ def get_parser():
 
     # slash config --get
     parser_config_get = argparse.ArgumentParser(add_help=False, description='Get a configuration value.')
-    parser_config_get.add_argument('KEY', nargs='+', help='Configuration key to get')
+    parser_config_get.add_argument('KEY', help='Configuration key to get')
     subparsers_env.add_parser('get', parents=[parser_config_get], help=parser_config_get.description, description=parser_config_get.description)
 
     # slash config --set
@@ -278,10 +278,13 @@ def main(*args, **kwargs):
             Slash.config.show()
 
         elif args.config_command == "get":
-            Slash.config.get(args.KEY)
+            value = Slash.config.get(args.KEY)
+            logger.info(f"{args.KEY}: {value}")
 
         elif args.config_command == "set":
             Slash.config.set(args.KEY, args.VALUE)
+            logger.info(f"Set '{args.KEY}' to '{args.VALUE}'.")
 
         elif args.config_command == "remove-key":
             Slash.config.remove_key(args.KEY)
+            logger.info(f"Removed '{args.KEY}'.")
