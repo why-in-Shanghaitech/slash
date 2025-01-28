@@ -2,7 +2,7 @@ import os
 from typing import Dict
 
 import slash.utils as utils
-from slash.core import Env, EnvsManager, Service, ServiceManager
+from slash.core import Env, EnvsManager, Service, ServiceManager, ConfigManager
 from slash.daemon import ProcessDaemon
 
 
@@ -14,6 +14,7 @@ class Slash:
     The main interface of the Slash library.
     """
     daemons = [ProcessDaemon]
+    config = ConfigManager()
 
     def __init__(self, env_name: str = 'base') -> None:
         self.env_name = env_name
