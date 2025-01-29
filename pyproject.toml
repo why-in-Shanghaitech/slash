@@ -24,6 +24,9 @@ classifiers = [
     "Operating System :: Linux",
 ]
 
+[project.optional-dependencies]
+docs = ["sphinx", "myst-parser", "linkify-it-py", "sphinx-autodoc2", "furo"]
+
 [project.urls]
 Homepage = "https://github.com/why-in-Shanghaitech/slash"
 Documentation = "https://github.com/why-in-Shanghaitech/slash/blob/master/README.md"
