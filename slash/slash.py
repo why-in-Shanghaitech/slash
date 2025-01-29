@@ -2,7 +2,7 @@ import os
 from typing import Dict
 
 import slash.utils as utils
-from slash.core import Env, EnvsManager, Service, ServiceManager, ConfigManager
+from slash.core import ConfigManager, Env, EnvsManager, Service, ServiceManager
 from slash.daemon import ProcessDaemon
 
 
