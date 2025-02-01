@@ -4,7 +4,7 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "slash"
+name = "slash-py"
 version = "v0.0.1.dev1"
 dependencies = [
     'requests',
@@ -21,7 +21,7 @@ license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3 :: Only",
-    "Operating System :: Linux",
+    "Operating System :: POSIX :: Linux",
 ]
 
 [project.optional-dependencies]
