@@ -78,7 +78,7 @@ class Daemon:
 
     def __init__(self):
         self.envs_manager = EnvsManager()
-        self.service_manager = ServiceManager(self.envs_manager)
+        self.service_manager = ServiceManager()
         self.deamonpid = DaemonPid(self.name)
 
     def launch_command(self) -> List[str]:

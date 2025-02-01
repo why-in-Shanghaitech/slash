@@ -383,7 +383,6 @@ class Env:
 
 
 class EnvsManager:
-
     def __init__(self):
         # check default envs
         if "base" not in self.envs:

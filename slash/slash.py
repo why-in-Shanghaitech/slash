@@ -19,7 +19,7 @@ class Slash:
     def __init__(self, env_name: str = 'base') -> None:
         self.env_name = env_name
         self.envs_manager = EnvsManager()
-        self.service_manager = ServiceManager(self.envs_manager)
+        self.service_manager = ServiceManager()
 
         # start the daemon
         for daemon in self.daemons:

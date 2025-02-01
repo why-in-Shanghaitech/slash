@@ -328,8 +328,8 @@ class Service:
 
 
 class ServiceManager:
-    def __init__(self, envs_manager: EnvsManager) -> None:
-        self.envs_manager = envs_manager
+    def __init__(self) -> None:
+        pass
 
     @property
     def services(self) -> Dict[str, Service]:
@@ -339,7 +339,7 @@ class ServiceManager:
         services: Dict[str, Service] = {}
 
         # load services from disk
-        for env in self.envs_manager.get_envs().values():
+        for env in EnvsManager().envs.values():
             service = Service.load(env)
             if service is not None:
                 services[env.name] = service
