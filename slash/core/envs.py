@@ -90,7 +90,8 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
         result = subprocess.run([str(executable), "-g"], cwd=work_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if result.returncode != 0:
-            raise ValueError("Failed to convert the subscription.")
+            err_msg = result.stderr.decode().strip()
+            raise ValueError("Failed to convert the subscription: %s" % err_msg)
 
         # move the file
         shutil.move(work_dir / "output.yaml", tgt)
