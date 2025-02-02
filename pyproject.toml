@@ -26,6 +26,7 @@ classifiers = [
 
 [project.optional-dependencies]
 docs = ["sphinx", "myst-parser", "linkify-it-py", "sphinx-autodoc2", "furo"]
+test = ["pytest"]
 
 [project.urls]
 Homepage = "https://github.com/why-in-Shanghaitech/slash"
