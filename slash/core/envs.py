@@ -149,9 +149,9 @@ class Env:
             data = json.load(f)
         return cls(**data)
 
-    def destory(self) -> None:
+    def destroy(self) -> None:
         """
-        Destory the environment.
+        Destroy the environment.
         """
         shutil.rmtree(self.workdir, ignore_errors=True)
 
@@ -463,7 +463,7 @@ class EnvsManager:
             logger.error(f"Cannot remove the default environment '{name}'.")
             sys.exit(1)
 
-        self.envs.get(name).destory()
+        self.envs.get(name).destroy()
         logger.info(f"Environment '{name}' has been removed.")
 
     def get_env(self, name):
