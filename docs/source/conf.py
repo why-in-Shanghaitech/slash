@@ -18,6 +18,7 @@ extensions = [
     'myst_parser',
     'autodoc2',
     'sphinxcontrib.autoprogram',
+    'sphinx.ext.viewcode',
 ]
 
 templates_path = ['_templates']
@@ -52,7 +53,6 @@ myst_enable_extensions = [
 autodoc2_packages = [
     {
         "path": "../../slash",
-        "auto_mode": False,
     },
 ]
 

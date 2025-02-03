@@ -16,5 +16,5 @@ tutorial
 :caption: Man Pages
 
 cli-api
-python-api
+apidocs/index
 ```
