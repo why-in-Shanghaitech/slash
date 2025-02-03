@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash.cli
+:parser: slash.docstrings
 :allowtitles:
 ```
 
@@ -17,10 +18,12 @@
 
 * - {py:obj}`get_parser <slash.cli.get_parser>`
   - ```{autodoc2-docstring} slash.cli.get_parser
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`main <slash.cli.main>`
   - ```{autodoc2-docstring} slash.cli.main
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -33,10 +36,12 @@
 
 * - {py:obj}`logger <slash.cli.logger>`
   - ```{autodoc2-docstring} slash.cli.logger
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`DSCP <slash.cli.DSCP>`
   - ```{autodoc2-docstring} slash.cli.DSCP
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -49,6 +54,7 @@
    None
 
 ```{autodoc2-docstring} slash.cli.logger
+:parser: slash.docstrings
 ```
 
 ````
@@ -58,6 +64,7 @@
 :value: <Multiline-String>
 
 ```{autodoc2-docstring} slash.cli.DSCP
+:parser: slash.docstrings
 ```
 
 ````
@@ -66,6 +73,7 @@
 :canonical: slash.cli.get_parser
 
 ```{autodoc2-docstring} slash.cli.get_parser
+:parser: slash.docstrings
 ```
 ````
 
@@ -73,5 +81,6 @@
 :canonical: slash.cli.main
 
 ```{autodoc2-docstring} slash.cli.main
+:parser: slash.docstrings
 ```
 ````

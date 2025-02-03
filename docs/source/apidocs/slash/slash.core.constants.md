@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash.core.constants
+:parser: slash.docstrings
 :allowtitles:
 ```
 
@@ -17,14 +18,17 @@
 
 * - {py:obj}`WORK_DIR <slash.core.constants.WORK_DIR>`
   - ```{autodoc2-docstring} slash.core.constants.WORK_DIR
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`ENVS_DIR <slash.core.constants.ENVS_DIR>`
   - ```{autodoc2-docstring} slash.core.constants.ENVS_DIR
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`CONFIG_PATH <slash.core.constants.CONFIG_PATH>`
   - ```{autodoc2-docstring} slash.core.constants.CONFIG_PATH
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -37,6 +41,7 @@
    None
 
 ```{autodoc2-docstring} slash.core.constants.WORK_DIR
+:parser: slash.docstrings
 ```
 
 ````
@@ -47,6 +52,7 @@
    None
 
 ```{autodoc2-docstring} slash.core.constants.ENVS_DIR
+:parser: slash.docstrings
 ```
 
 ````
@@ -57,6 +63,7 @@
    None
 
 ```{autodoc2-docstring} slash.core.constants.CONFIG_PATH
+:parser: slash.docstrings
 ```
 
 ````

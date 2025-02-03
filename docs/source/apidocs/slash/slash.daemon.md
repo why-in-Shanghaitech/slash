@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash.daemon
+:parser: slash.docstrings
 :allowtitles:
 ```
 
@@ -17,14 +18,17 @@
 
 * - {py:obj}`DaemonPid <slash.daemon.DaemonPid>`
   - ```{autodoc2-docstring} slash.daemon.DaemonPid
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`Daemon <slash.daemon.Daemon>`
   - ```{autodoc2-docstring} slash.daemon.Daemon
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`ProcessDaemon <slash.daemon.ProcessDaemon>`
   - ```{autodoc2-docstring} slash.daemon.ProcessDaemon
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -37,6 +41,7 @@
 
 * - {py:obj}`logger <slash.daemon.logger>`
   - ```{autodoc2-docstring} slash.daemon.logger
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -49,6 +54,7 @@
    None
 
 ```{autodoc2-docstring} slash.daemon.logger
+:parser: slash.docstrings
 ```
 
 ````
@@ -57,12 +63,14 @@
 :canonical: slash.daemon.DaemonPid
 
 ```{autodoc2-docstring} slash.daemon.DaemonPid
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.daemon.DaemonPid.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:property} deamon_pid
@@ -70,6 +78,7 @@
 :type: pathlib.Path
 
 ```{autodoc2-docstring} slash.daemon.DaemonPid.deamon_pid
+:parser: slash.docstrings
 ```
 
 ````
@@ -79,6 +88,7 @@
 :type: int
 
 ```{autodoc2-docstring} slash.daemon.DaemonPid.pid
+:parser: slash.docstrings
 ```
 
 ````
@@ -87,6 +97,7 @@
 :canonical: slash.daemon.DaemonPid.is_running
 
 ```{autodoc2-docstring} slash.daemon.DaemonPid.is_running
+:parser: slash.docstrings
 ```
 
 ````
@@ -97,12 +108,14 @@
 :canonical: slash.daemon.Daemon
 
 ```{autodoc2-docstring} slash.daemon.Daemon
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.daemon.Daemon.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:attribute} name
@@ -111,6 +124,7 @@
    None
 
 ```{autodoc2-docstring} slash.daemon.Daemon.name
+:parser: slash.docstrings
 ```
 
 ````
@@ -121,6 +135,7 @@
    60
 
 ```{autodoc2-docstring} slash.daemon.Daemon.interval
+:parser: slash.docstrings
 ```
 
 ````
@@ -130,6 +145,7 @@
 :abstractmethod:
 
 ```{autodoc2-docstring} slash.daemon.Daemon.launch_command
+:parser: slash.docstrings
 ```
 
 ````
@@ -139,6 +155,7 @@
 :abstractmethod:
 
 ```{autodoc2-docstring} slash.daemon.Daemon.getid
+:parser: slash.docstrings
 ```
 
 ````
@@ -148,6 +165,7 @@
 :abstractmethod:
 
 ```{autodoc2-docstring} slash.daemon.Daemon.validate
+:parser: slash.docstrings
 ```
 
 ````
@@ -156,6 +174,7 @@
 :canonical: slash.daemon.Daemon.start
 
 ```{autodoc2-docstring} slash.daemon.Daemon.start
+:parser: slash.docstrings
 ```
 
 ````
@@ -164,6 +183,7 @@
 :canonical: slash.daemon.Daemon.stop
 
 ```{autodoc2-docstring} slash.daemon.Daemon.stop
+:parser: slash.docstrings
 ```
 
 ````
@@ -172,6 +192,7 @@
 :canonical: slash.daemon.Daemon.loop
 
 ```{autodoc2-docstring} slash.daemon.Daemon.loop
+:parser: slash.docstrings
 ```
 
 ````
@@ -184,12 +205,14 @@
 Bases: {py:obj}`slash.daemon.Daemon`
 
 ```{autodoc2-docstring} slash.daemon.ProcessDaemon
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.daemon.ProcessDaemon.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:attribute} name
@@ -198,6 +221,7 @@ Bases: {py:obj}`slash.daemon.Daemon`
    'pid'
 
 ```{autodoc2-docstring} slash.daemon.ProcessDaemon.name
+:parser: slash.docstrings
 ```
 
 ````
@@ -206,6 +230,7 @@ Bases: {py:obj}`slash.daemon.Daemon`
 :canonical: slash.daemon.ProcessDaemon.launch_command
 
 ```{autodoc2-docstring} slash.daemon.ProcessDaemon.launch_command
+:parser: slash.docstrings
 ```
 
 ````
@@ -214,6 +239,7 @@ Bases: {py:obj}`slash.daemon.Daemon`
 :canonical: slash.daemon.ProcessDaemon.getid
 
 ```{autodoc2-docstring} slash.daemon.ProcessDaemon.getid
+:parser: slash.docstrings
 ```
 
 ````
@@ -222,6 +248,7 @@ Bases: {py:obj}`slash.daemon.Daemon`
 :canonical: slash.daemon.ProcessDaemon.validate
 
 ```{autodoc2-docstring} slash.daemon.ProcessDaemon.validate
+:parser: slash.docstrings
 ```
 
 ````

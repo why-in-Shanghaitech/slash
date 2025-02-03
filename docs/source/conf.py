@@ -53,10 +53,18 @@ myst_enable_extensions = [
 autodoc2_packages = [
     {
         "path": "../../slash",
+        "exclude_files": ["docstrings.py"],
     },
 ]
 
 autodoc2_render_plugin = "myst"
+
+autodoc2_docstring_parser_regexes = [
+    (
+        ".*",
+        "slash.docstrings",
+    ),
+]
 
 
 # -- Options for HTML output -------------------------------------------------

@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash
+:parser: slash.docstrings
 :allowtitles:
 ```
 

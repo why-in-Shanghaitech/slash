@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash.core.envs
+:parser: slash.docstrings
 :allowtitles:
 ```
 
@@ -17,10 +18,12 @@
 
 * - {py:obj}`Env <slash.core.envs.Env>`
   - ```{autodoc2-docstring} slash.core.envs.Env
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`EnvsManager <slash.core.envs.EnvsManager>`
   - ```{autodoc2-docstring} slash.core.envs.EnvsManager
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -33,6 +36,7 @@
 
 * - {py:obj}`convert <slash.core.envs.convert>`
   - ```{autodoc2-docstring} slash.core.envs.convert
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -45,10 +49,12 @@
 
 * - {py:obj}`logger <slash.core.envs.logger>`
   - ```{autodoc2-docstring} slash.core.envs.logger
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`yaml <slash.core.envs.yaml>`
   - ```{autodoc2-docstring} slash.core.envs.yaml
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -61,6 +67,7 @@
    None
 
 ```{autodoc2-docstring} slash.core.envs.logger
+:parser: slash.docstrings
 ```
 
 ````
@@ -71,6 +78,7 @@
    'YAML(...)'
 
 ```{autodoc2-docstring} slash.core.envs.yaml
+:parser: slash.docstrings
 ```
 
 ````
@@ -79,6 +87,7 @@
 :canonical: slash.core.envs.convert
 
 ```{autodoc2-docstring} slash.core.envs.convert
+:parser: slash.docstrings
 ```
 ````
 
@@ -86,12 +95,14 @@
 :canonical: slash.core.envs.Env
 
 ```{autodoc2-docstring} slash.core.envs.Env
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.core.envs.Env.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:property} workdir
@@ -99,6 +110,7 @@
 :type: pathlib.Path
 
 ```{autodoc2-docstring} slash.core.envs.Env.workdir
+:parser: slash.docstrings
 ```
 
 ````
@@ -107,6 +119,7 @@
 :canonical: slash.core.envs.Env.save
 
 ```{autodoc2-docstring} slash.core.envs.Env.save
+:parser: slash.docstrings
 ```
 
 ````
@@ -115,6 +128,7 @@
 :canonical: slash.core.envs.Env.save_to
 
 ```{autodoc2-docstring} slash.core.envs.Env.save_to
+:parser: slash.docstrings
 ```
 
 ````
@@ -124,6 +138,7 @@
 :classmethod:
 
 ```{autodoc2-docstring} slash.core.envs.Env.load_from
+:parser: slash.docstrings
 ```
 
 ````
@@ -132,6 +147,7 @@
 :canonical: slash.core.envs.Env.destroy
 
 ```{autodoc2-docstring} slash.core.envs.Env.destroy
+:parser: slash.docstrings
 ```
 
 ````
@@ -140,6 +156,7 @@
 :canonical: slash.core.envs.Env.update
 
 ```{autodoc2-docstring} slash.core.envs.Env.update
+:parser: slash.docstrings
 ```
 
 ````
@@ -148,6 +165,7 @@
 :canonical: slash.core.envs.Env._get_config
 
 ```{autodoc2-docstring} slash.core.envs.Env._get_config
+:parser: slash.docstrings
 ```
 
 ````
@@ -156,6 +174,7 @@
 :canonical: slash.core.envs.Env._set_config
 
 ```{autodoc2-docstring} slash.core.envs.Env._set_config
+:parser: slash.docstrings
 ```
 
 ````
@@ -164,6 +183,7 @@
 :canonical: slash.core.envs.Env.set_port
 
 ```{autodoc2-docstring} slash.core.envs.Env.set_port
+:parser: slash.docstrings
 ```
 
 ````
@@ -172,6 +192,7 @@
 :canonical: slash.core.envs.Env.set_controller
 
 ```{autodoc2-docstring} slash.core.envs.Env.set_controller
+:parser: slash.docstrings
 ```
 
 ````
@@ -180,6 +201,7 @@
 :canonical: slash.core.envs.Env.set_dialer_proxy
 
 ```{autodoc2-docstring} slash.core.envs.Env.set_dialer_proxy
+:parser: slash.docstrings
 ```
 
 ````
@@ -190,12 +212,14 @@
 :canonical: slash.core.envs.EnvsManager
 
 ```{autodoc2-docstring} slash.core.envs.EnvsManager
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.core.envs.EnvsManager.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:property} envs
@@ -203,6 +227,7 @@
 :type: typing.Dict[str, slash.core.envs.Env]
 
 ```{autodoc2-docstring} slash.core.envs.EnvsManager.envs
+:parser: slash.docstrings
 ```
 
 ````
@@ -211,6 +236,7 @@
 :canonical: slash.core.envs.EnvsManager.create_env
 
 ```{autodoc2-docstring} slash.core.envs.EnvsManager.create_env
+:parser: slash.docstrings
 ```
 
 ````
@@ -219,6 +245,7 @@
 :canonical: slash.core.envs.EnvsManager.remove_env
 
 ```{autodoc2-docstring} slash.core.envs.EnvsManager.remove_env
+:parser: slash.docstrings
 ```
 
 ````
@@ -227,6 +254,7 @@
 :canonical: slash.core.envs.EnvsManager.get_env
 
 ```{autodoc2-docstring} slash.core.envs.EnvsManager.get_env
+:parser: slash.docstrings
 ```
 
 ````
@@ -235,6 +263,7 @@
 :canonical: slash.core.envs.EnvsManager.get_envs
 
 ```{autodoc2-docstring} slash.core.envs.EnvsManager.get_envs
+:parser: slash.docstrings
 ```
 
 ````

@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash.core.service
+:parser: slash.docstrings
 :allowtitles:
 ```
 
@@ -17,10 +18,12 @@
 
 * - {py:obj}`Service <slash.core.service.Service>`
   - ```{autodoc2-docstring} slash.core.service.Service
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`ServiceManager <slash.core.service.ServiceManager>`
   - ```{autodoc2-docstring} slash.core.service.ServiceManager
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -33,10 +36,12 @@
 
 * - {py:obj}`get_yacd_workdir <slash.core.service.get_yacd_workdir>`
   - ```{autodoc2-docstring} slash.core.service.get_yacd_workdir
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`get_executable <slash.core.service.get_executable>`
   - ```{autodoc2-docstring} slash.core.service.get_executable
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -49,6 +54,7 @@
 
 * - {py:obj}`logger <slash.core.service.logger>`
   - ```{autodoc2-docstring} slash.core.service.logger
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -61,6 +67,7 @@
    None
 
 ```{autodoc2-docstring} slash.core.service.logger
+:parser: slash.docstrings
 ```
 
 ````
@@ -69,6 +76,7 @@
 :canonical: slash.core.service.get_yacd_workdir
 
 ```{autodoc2-docstring} slash.core.service.get_yacd_workdir
+:parser: slash.docstrings
 ```
 ````
 
@@ -76,6 +84,7 @@
 :canonical: slash.core.service.get_executable
 
 ```{autodoc2-docstring} slash.core.service.get_executable
+:parser: slash.docstrings
 ```
 ````
 
@@ -83,18 +92,21 @@
 :canonical: slash.core.service.Service
 
 ```{autodoc2-docstring} slash.core.service.Service
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.core.service.Service.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:method} get_controller_urls() -> typing.List[str]
 :canonical: slash.core.service.Service.get_controller_urls
 
 ```{autodoc2-docstring} slash.core.service.Service.get_controller_urls
+:parser: slash.docstrings
 ```
 
 ````
@@ -103,6 +115,7 @@
 :canonical: slash.core.service.Service.is_alive
 
 ```{autodoc2-docstring} slash.core.service.Service.is_alive
+:parser: slash.docstrings
 ```
 
 ````
@@ -111,6 +124,7 @@
 :canonical: slash.core.service.Service.is_operational
 
 ```{autodoc2-docstring} slash.core.service.Service.is_operational
+:parser: slash.docstrings
 ```
 
 ````
@@ -120,6 +134,7 @@
 :classmethod:
 
 ```{autodoc2-docstring} slash.core.service.Service.launch
+:parser: slash.docstrings
 ```
 
 ````
@@ -128,6 +143,7 @@
 :canonical: slash.core.service.Service.update
 
 ```{autodoc2-docstring} slash.core.service.Service.update
+:parser: slash.docstrings
 ```
 
 ````
@@ -136,6 +152,7 @@
 :canonical: slash.core.service.Service.stop
 
 ```{autodoc2-docstring} slash.core.service.Service.stop
+:parser: slash.docstrings
 ```
 
 ````
@@ -145,6 +162,7 @@
 :classmethod:
 
 ```{autodoc2-docstring} slash.core.service.Service.load
+:parser: slash.docstrings
 ```
 
 ````
@@ -154,6 +172,7 @@
 :classmethod:
 
 ```{autodoc2-docstring} slash.core.service.Service.load_from
+:parser: slash.docstrings
 ```
 
 ````
@@ -162,6 +181,7 @@
 :canonical: slash.core.service.Service.save
 
 ```{autodoc2-docstring} slash.core.service.Service.save
+:parser: slash.docstrings
 ```
 
 ````
@@ -170,6 +190,7 @@
 :canonical: slash.core.service.Service.save_to
 
 ```{autodoc2-docstring} slash.core.service.Service.save_to
+:parser: slash.docstrings
 ```
 
 ````
@@ -180,12 +201,14 @@
 :canonical: slash.core.service.ServiceManager
 
 ```{autodoc2-docstring} slash.core.service.ServiceManager
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.core.service.ServiceManager.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:property} services
@@ -193,6 +216,7 @@
 :type: typing.Dict[str, slash.core.service.Service]
 
 ```{autodoc2-docstring} slash.core.service.ServiceManager.services
+:parser: slash.docstrings
 ```
 
 ````
@@ -201,6 +225,7 @@
 :canonical: slash.core.service.ServiceManager.launch
 
 ```{autodoc2-docstring} slash.core.service.ServiceManager.launch
+:parser: slash.docstrings
 ```
 
 ````
@@ -209,6 +234,7 @@
 :canonical: slash.core.service.ServiceManager.stop
 
 ```{autodoc2-docstring} slash.core.service.ServiceManager.stop
+:parser: slash.docstrings
 ```
 
 ````

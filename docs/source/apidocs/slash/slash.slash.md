@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash.slash
+:parser: slash.docstrings
 :allowtitles:
 ```
 
@@ -17,6 +18,7 @@
 
 * - {py:obj}`Slash <slash.slash.Slash>`
   - ```{autodoc2-docstring} slash.slash.Slash
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -29,6 +31,7 @@
 
 * - {py:obj}`logger <slash.slash.logger>`
   - ```{autodoc2-docstring} slash.slash.logger
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -41,6 +44,7 @@
    None
 
 ```{autodoc2-docstring} slash.slash.logger
+:parser: slash.docstrings
 ```
 
 ````
@@ -49,12 +53,14 @@
 :canonical: slash.slash.Slash
 
 ```{autodoc2-docstring} slash.slash.Slash
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.slash.Slash.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:attribute} daemons
@@ -63,6 +69,7 @@
    None
 
 ```{autodoc2-docstring} slash.slash.Slash.daemons
+:parser: slash.docstrings
 ```
 
 ````
@@ -73,6 +80,7 @@
    'ConfigManager(...)'
 
 ```{autodoc2-docstring} slash.slash.Slash.config
+:parser: slash.docstrings
 ```
 
 ````
@@ -83,6 +91,7 @@
    'EnvsManager(...)'
 
 ```{autodoc2-docstring} slash.slash.Slash.envs_manager
+:parser: slash.docstrings
 ```
 
 ````
@@ -93,6 +102,7 @@
    'ServiceManager(...)'
 
 ```{autodoc2-docstring} slash.slash.Slash.service_manager
+:parser: slash.docstrings
 ```
 
 ````
@@ -102,6 +112,7 @@
 :type: slash.core.Env
 
 ```{autodoc2-docstring} slash.slash.Slash.env
+:parser: slash.docstrings
 ```
 
 ````
@@ -111,6 +122,7 @@
 :type: slash.core.Service
 
 ```{autodoc2-docstring} slash.slash.Slash.service
+:parser: slash.docstrings
 ```
 
 ````
@@ -119,6 +131,7 @@
 :canonical: slash.slash.Slash.launch
 
 ```{autodoc2-docstring} slash.slash.Slash.launch
+:parser: slash.docstrings
 ```
 
 ````
@@ -127,6 +140,7 @@
 :canonical: slash.slash.Slash.stop
 
 ```{autodoc2-docstring} slash.slash.Slash.stop
+:parser: slash.docstrings
 ```
 
 ````
@@ -135,6 +149,7 @@
 :canonical: slash.slash.Slash.update
 
 ```{autodoc2-docstring} slash.slash.Slash.update
+:parser: slash.docstrings
 ```
 
 ````
@@ -143,6 +158,7 @@
 :canonical: slash.slash.Slash.info
 
 ```{autodoc2-docstring} slash.slash.Slash.info
+:parser: slash.docstrings
 ```
 
 ````
@@ -152,6 +168,7 @@
 :classmethod:
 
 ```{autodoc2-docstring} slash.slash.Slash.create
+:parser: slash.docstrings
 ```
 
 ````
@@ -161,6 +178,7 @@
 :classmethod:
 
 ```{autodoc2-docstring} slash.slash.Slash.remove
+:parser: slash.docstrings
 ```
 
 ````
@@ -170,6 +188,7 @@
 :classmethod:
 
 ```{autodoc2-docstring} slash.slash.Slash.list
+:parser: slash.docstrings
 ```
 
 ````
@@ -178,6 +197,7 @@
 :canonical: slash.slash.Slash.__enter__
 
 ```{autodoc2-docstring} slash.slash.Slash.__enter__
+:parser: slash.docstrings
 ```
 
 ````
@@ -186,6 +206,7 @@
 :canonical: slash.slash.Slash.__exit__
 
 ```{autodoc2-docstring} slash.slash.Slash.__exit__
+:parser: slash.docstrings
 ```
 
 ````

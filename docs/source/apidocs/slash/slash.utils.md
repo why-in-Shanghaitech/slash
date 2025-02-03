@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash.utils
+:parser: slash.docstrings
 :allowtitles:
 ```
 
@@ -17,10 +18,12 @@
 
 * - {py:obj}`Logger <slash.utils.Logger>`
   - ```{autodoc2-docstring} slash.utils.Logger
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`FreePort <slash.utils.FreePort>`
   - ```{autodoc2-docstring} slash.utils.FreePort
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -33,18 +36,22 @@
 
 * - {py:obj}`dals <slash.utils.dals>`
   - ```{autodoc2-docstring} slash.utils.dals
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`download_file <slash.utils.download_file>`
   - ```{autodoc2-docstring} slash.utils.download_file
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`runbg <slash.utils.runbg>`
   - ```{autodoc2-docstring} slash.utils.runbg
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`get_process <slash.utils.get_process>`
   - ```{autodoc2-docstring} slash.utils.get_process
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -57,10 +64,12 @@
 
 * - {py:obj}`PROXY_RULES <slash.utils.PROXY_RULES>`
   - ```{autodoc2-docstring} slash.utils.PROXY_RULES
+    :parser: slash.docstrings
     :summary:
     ```
 * - {py:obj}`logger <slash.utils.logger>`
   - ```{autodoc2-docstring} slash.utils.logger
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -73,6 +82,7 @@
    [['^https?://raw.githubusercontent.com/([^/]*)/([^/]*)/([^/]*)/(.*)$', ['https://cdn.jsdelivr.net/gh...
 
 ```{autodoc2-docstring} slash.utils.PROXY_RULES
+:parser: slash.docstrings
 ```
 
 ````
@@ -81,18 +91,21 @@
 :canonical: slash.utils.Logger
 
 ```{autodoc2-docstring} slash.utils.Logger
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.utils.Logger.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:method} debug(*args, **kwargs) -> None
 :canonical: slash.utils.Logger.debug
 
 ```{autodoc2-docstring} slash.utils.Logger.debug
+:parser: slash.docstrings
 ```
 
 ````
@@ -101,6 +114,7 @@
 :canonical: slash.utils.Logger.info
 
 ```{autodoc2-docstring} slash.utils.Logger.info
+:parser: slash.docstrings
 ```
 
 ````
@@ -109,6 +123,7 @@
 :canonical: slash.utils.Logger.warn
 
 ```{autodoc2-docstring} slash.utils.Logger.warn
+:parser: slash.docstrings
 ```
 
 ````
@@ -117,6 +132,7 @@
 :canonical: slash.utils.Logger.error
 
 ```{autodoc2-docstring} slash.utils.Logger.error
+:parser: slash.docstrings
 ```
 
 ````
@@ -125,6 +141,7 @@
 :canonical: slash.utils.Logger.status
 
 ```{autodoc2-docstring} slash.utils.Logger.status
+:parser: slash.docstrings
 ```
 
 ````
@@ -133,6 +150,7 @@
 :canonical: slash.utils.Logger.mute
 
 ```{autodoc2-docstring} slash.utils.Logger.mute
+:parser: slash.docstrings
 ```
 
 ````
@@ -141,6 +159,7 @@
 :canonical: slash.utils.Logger.unmute
 
 ```{autodoc2-docstring} slash.utils.Logger.unmute
+:parser: slash.docstrings
 ```
 
 ````
@@ -153,6 +172,7 @@
    'Logger(...)'
 
 ```{autodoc2-docstring} slash.utils.logger
+:parser: slash.docstrings
 ```
 
 ````
@@ -161,12 +181,14 @@
 :canonical: slash.utils.FreePort
 
 ```{autodoc2-docstring} slash.utils.FreePort
+:parser: slash.docstrings
 ```
 
 ```{rubric} Initialization
 ```
 
 ```{autodoc2-docstring} slash.utils.FreePort.__init__
+:parser: slash.docstrings
 ```
 
 ````{py:method} is_free(port: int) -> bool
@@ -174,6 +196,7 @@
 :staticmethod:
 
 ```{autodoc2-docstring} slash.utils.FreePort.is_free
+:parser: slash.docstrings
 ```
 
 ````
@@ -182,6 +205,7 @@
 :canonical: slash.utils.FreePort.acquire
 
 ```{autodoc2-docstring} slash.utils.FreePort.acquire
+:parser: slash.docstrings
 ```
 
 ````
@@ -190,6 +214,7 @@
 :canonical: slash.utils.FreePort.release
 
 ```{autodoc2-docstring} slash.utils.FreePort.release
+:parser: slash.docstrings
 ```
 
 ````
@@ -198,6 +223,7 @@
 :canonical: slash.utils.FreePort.__enter__
 
 ```{autodoc2-docstring} slash.utils.FreePort.__enter__
+:parser: slash.docstrings
 ```
 
 ````
@@ -206,6 +232,7 @@
 :canonical: slash.utils.FreePort.__exit__
 
 ```{autodoc2-docstring} slash.utils.FreePort.__exit__
+:parser: slash.docstrings
 ```
 
 ````
@@ -216,6 +243,7 @@
 :canonical: slash.utils.dals
 
 ```{autodoc2-docstring} slash.utils.dals
+:parser: slash.docstrings
 ```
 ````
 
@@ -223,6 +251,7 @@
 :canonical: slash.utils.download_file
 
 ```{autodoc2-docstring} slash.utils.download_file
+:parser: slash.docstrings
 ```
 ````
 
@@ -230,6 +259,7 @@
 :canonical: slash.utils.runbg
 
 ```{autodoc2-docstring} slash.utils.runbg
+:parser: slash.docstrings
 ```
 ````
 
@@ -237,5 +267,6 @@
 :canonical: slash.utils.get_process
 
 ```{autodoc2-docstring} slash.utils.get_process
+:parser: slash.docstrings
 ```
 ````

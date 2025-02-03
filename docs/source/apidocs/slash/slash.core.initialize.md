@@ -4,6 +4,7 @@
 ```
 
 ```{autodoc2-docstring} slash.core.initialize
+:parser: slash.docstrings
 :allowtitles:
 ```
 
@@ -17,6 +18,7 @@
 
 * - {py:obj}`initialize <slash.core.initialize.initialize>`
   - ```{autodoc2-docstring} slash.core.initialize.initialize
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -29,6 +31,7 @@
 
 * - {py:obj}`logger <slash.core.initialize.logger>`
   - ```{autodoc2-docstring} slash.core.initialize.logger
+    :parser: slash.docstrings
     :summary:
     ```
 ````
@@ -41,6 +44,7 @@
    None
 
 ```{autodoc2-docstring} slash.core.initialize.logger
+:parser: slash.docstrings
 ```
 
 ````
@@ -49,5 +53,6 @@
 :canonical: slash.core.initialize.initialize
 
 ```{autodoc2-docstring} slash.core.initialize.initialize
+:parser: slash.docstrings
 ```
 ````
