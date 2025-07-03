@@ -40,7 +40,7 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
 
         # Use the release
         utils.download_file(
-            urls = "https://github.com/MetaCubeX/subconverter/releases/download/Alpha/subconverter_linux64.tar.gz",
+            urls = utils.get_latest_github_release("MetaCubeX/subconverter", "subconverter_linux64.tar.gz"),
             path = tar_path,
             desc = "Downloading subconverter tarball..."
         )
@@ -187,6 +187,7 @@ class Env:
                 # download geoip.metadb
                 utils.download_file(
                     urls = [
+                        utils.get_latest_github_release("MetaCubeX/meta-rules-dat", "geoip.metadb"),
                         "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb",
                         "https://github.com/MetaCubeX/meta-rules-dat/blob/release/geoip.metadb",
                     ],
