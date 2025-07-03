@@ -56,7 +56,7 @@ def get_executable() -> Path:
     """
 
     # prepare mihomo executable
-    exec_path = WORK_DIR / "mihomo-v1.18.1"
+    exec_path = WORK_DIR / "mihomo-v1.19.11"
 
     if not exec_path.exists(): # download and cache
 
@@ -66,7 +66,7 @@ def get_executable() -> Path:
         # Use mihomo to support more protocols
         utils.download_file(
             urls = [
-                "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.1/mihomo-linux-amd64-v1.18.1.gz",
+                "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.11/mihomo-linux-amd64-v1.19.11.gz",
                 "https://gitee.com/jiang-zhida/mihomo/releases/download/v1.16.0/clash.meta-linux-amd64-v1.16.0.gz" # the version on gitee is older
             ],
             path = exec_path,
