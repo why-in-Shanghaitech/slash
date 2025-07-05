@@ -29,10 +29,10 @@ jobs:
         name: html-docs
         path: docs/build/html/
     - name: Upload static files as artifact
-        id: deployment
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs/build/html/
+      id: deployment
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs/build/html/
 
   deploy:
     environment:
