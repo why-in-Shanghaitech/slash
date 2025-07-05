@@ -14,7 +14,7 @@ import requests
 from filelock import SoftFileLock
 
 import slash.utils as utils
-from slash.core import WORK_DIR, Env, EnvsManager
+from slash.core import WORK_DIR, ConfigManager, Env, EnvsManager
 
 
 logger = utils.logger
@@ -56,7 +56,7 @@ def get_executable() -> Path:
     """
 
     # prepare mihomo executable
-    exec_path = WORK_DIR / "mihomo-v1.18.1"
+    exec_path = WORK_DIR / "mihomo-v1.19.11"
 
     if not exec_path.exists(): # download and cache
 
@@ -66,7 +66,7 @@ def get_executable() -> Path:
         # Use mihomo to support more protocols
         utils.download_file(
             urls = [
-                "https://github.com/MetaCubeX/mihomo/releases/download/v1.18.1/mihomo-linux-amd64-v1.18.1.gz",
+                "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.11/mihomo-linux-amd64-v1.19.11.gz",
                 "https://gitee.com/jiang-zhida/mihomo/releases/download/v1.16.0/clash.meta-linux-amd64-v1.16.0.gz" # the version on gitee is older
             ],
             path = exec_path,
@@ -160,24 +160,36 @@ class Service:
             # set the controller
             secret = env.set_controller(fp_ctl.port, get_yacd_workdir())
 
+            # possibly set the dialer proxy
+            env.set_dialer_proxy(ConfigManager().get_config())
+
             # start the service
             pid = utils.runbg(['nohup', str(get_executable()), "-d", str(env.workdir)])
             service = cls(pid, fp.port, (fp_ctl.port, secret), env, [job])
 
             # wait for the service to start
-            timeout = 150
-            interval = 5
-            launched = False
-            with logger.status("Waiting the service to be established...") as status:
-                start = time.time()
-                time.sleep(interval)
-                while not service.is_operational():
-                    if not service.is_alive() or (duration := time.time() - start) > timeout:
-                        break
-                    status.update(f"Waiting the service to be established (ETA {time.strftime('%M:%S', time.localtime(timeout - duration))})...")
-                    time.sleep(interval) # wait for the service to start
-                else:
-                    launched = True
+            try:
+                timeout = 150
+                interval = 5
+                launched = False
+                with logger.status("Waiting the service to be established...") as status:
+                    start = time.time()
+                    time.sleep(interval)
+                    while not service.is_operational():
+                        if not service.is_alive() or (duration := time.time() - start) > timeout:
+                            break
+                        status.update(f"Waiting the service to be established (ETA {time.strftime('%M:%S', time.localtime(timeout - duration))})...")
+                        time.sleep(interval) # wait for the service to start
+                    else:
+                        launched = True
+            except KeyboardInterrupt:
+                logger.error("Service establish interrupted.")
+                service.stop()
+                sys.exit(1)
+            except Exception as e:
+                logger.error(f"Service establish failed: {e}")
+                service.stop()
+                sys.exit(1)
 
             if not launched:
                 logger.error("Service establish failed.")
@@ -205,6 +217,7 @@ class Service:
         port, secret = self.ctl
         self.env.set_port(self.port)
         self.env.set_controller(port, get_yacd_workdir(), secret=secret)
+        self.env.set_dialer_proxy(ConfigManager().get_config())
 
         # update the service
         url = f'http://127.0.0.1:{port}/configs'
@@ -315,8 +328,8 @@ class Service:
 
 
 class ServiceManager:
-    def __init__(self, envs_manager: EnvsManager) -> None:
-        self.envs_manager = envs_manager
+    def __init__(self) -> None:
+        pass
 
     @property
     def services(self) -> Dict[str, Service]:
@@ -326,7 +339,7 @@ class ServiceManager:
         services: Dict[str, Service] = {}
 
         # load services from disk
-        for env in self.envs_manager.get_envs().values():
+        for env in EnvsManager().envs.values():
             service = Service.load(env)
             if service is not None:
                 services[env.name] = service

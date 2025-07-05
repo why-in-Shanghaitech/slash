@@ -60,11 +60,5 @@ with Slash('myenv'):
 ## Install
 
 ```bash
-pip install git+https://github.com/why-in-Shanghaitech/slash.git
-```
-
-## Uninstall
-
-```sh
-pip uninstall slash
+pip install slash-py
 ```

@@ -2,7 +2,7 @@ import os
 from typing import Dict
 
 import slash.utils as utils
-from slash.core import Env, EnvsManager, Service, ServiceManager
+from slash.core import ConfigManager, Env, EnvsManager, Service, ServiceManager
 from slash.daemon import ProcessDaemon
 
 
@@ -14,11 +14,12 @@ class Slash:
     The main interface of the Slash library.
     """
     daemons = [ProcessDaemon]
+    config = ConfigManager()
+    envs_manager = EnvsManager()
+    service_manager = ServiceManager()
 
     def __init__(self, env_name: str = 'base') -> None:
         self.env_name = env_name
-        self.envs_manager = EnvsManager()
-        self.service_manager = ServiceManager(self.envs_manager)
 
         # start the daemon
         for daemon in self.daemons:
@@ -83,7 +84,7 @@ class Slash:
             name (str): The name of the environment.
             file (str): The path to the environment file, or the link to the subscription.
         """
-        EnvsManager().create_env(name, file)
+        cls.envs_manager.create_env(name, file)
 
     @classmethod
     def remove(cls, name: str) -> None:
@@ -93,14 +94,14 @@ class Slash:
         Arguments:
             name (str): The name of the environment.
         """
-        EnvsManager().remove_env(name)
+        cls.envs_manager.remove_env(name)
 
     @classmethod
     def list(cls) -> Dict[str, 'Env']:
         """
         List all environments.
         """
-        return EnvsManager().get_envs()
+        return cls.envs_manager.get_envs()
 
     def __enter__(self) -> 'Slash':
         service = self.launch("__pid_{pid}_with__".format(pid=os.getpid()))

@@ -17,7 +17,6 @@ from rich.console import Console
 from rich.progress import BarColumn, DownloadColumn, Progress, TextColumn, TimeRemainingColumn, TransferSpeedColumn
 from rich.status import Status
 
-
 PROXY_RULES = [
     [
         # raw.githubusercontent.com
@@ -32,11 +31,47 @@ PROXY_RULES = [
             r"https://jsd.onmicrosoft.cn/gh/\g<1>/\g<2>@\g<3>/\g<4>",
 
             # gh-proxy
+            r"https://github.akams.cn/\g<0>",
+            r"https://github.tbedu.top/\g<0>",
+            r"https://ghf.xn--eqrr82bzpe.top/\g<0>",
+            r"https://ghfile.geekertao.top/\g<0>",
+            r"https://jiashu.1win.eu.org/\g<0>",
+            r"https://ghproxy.net/\g<0>",
+            r"https://gh-proxy.net/\g<0>",
+            r"https://j.1lin.dpdns.org/\g<0>",
+            r"https://j.1win.ggff.net/\g<0>",
+            r"https://gh.llkk.cc/\g<0>",
+            r"https://git.yylx.win/\g<0>",
+            r"https://tvv.tw/\g<0>",
+            r"https://github.kkproxy.dpdns.org/\g<0>",
+            r"https://gp-us.fyan.top/\g<0>",
+            r"https://gitproxy.127731.xyz/\g<0>",
+            r"https://ghproxy.fangkuai.fun/\g<0>",
+            r"https://github.cmsz.dpdns.org/\g<0>",
+            r"https://ghp.ml1.one/\g<0>",
+            r"https://www.imengying.eu.org/\g<0>",
+            r"https://ghproxy.vansour.top/\g<0>",
+            r"https://x.whereisdoge.work/\g<0>",
+            r"https://gh.catmak.name/\g<0>",
+            r"https://y.whereisdoge.work/\g<0>",
+            r"https://github.acmsz.top/\g<0>",
+            r"https://hub.gitmirror.com/\g<0>",
+            r"https://gh.dpik.top/\g<0>",
+            r"https://github.dpik.top/\g<0>",
+            r"https://gitproxy.click/\g<0>",
+            r"https://github.moeyy.xyz/\g<0>",
+            r"https://github.whrstudio.top/\g<0>",
+            r"https://github.proxy.class3.fun/\g<0>",
+            r"https://github-proxy.lixxing.top/\g<0>",
+            r"https://ghm.078465.xyz/\g<0>",
+            r"https://gh-deno.mocn.top/\g<0>",
+            r"https://github.kongkuang.top/\g<0>",
+            r"https://github-proxy.kongkuang.icu/\g<0>",
+            r"https://github.iomi.team/\g<0>",
+            r"https://github.3x25.com/\g<0>",
+            r"https://github.ur1.fun/\g<0>",
             r"https://ghp.ci/\g<0>",
             r"https://proxy.v2gh.com/\g<0>",
-            r"https://ghproxy.net/\g<0>",
-            r"https://cf.ghproxy.cc/\g<0>",
-            r"https://github.moeyy.xyz/\g<0>",
             r"https://ghps.cc/\g<0>",
             r"https://hub.gitmirror.com/\g<0>",
             r"https://gh.api.99988866.xyz/\g<0>",
@@ -47,11 +82,47 @@ PROXY_RULES = [
         r"^https?://github.com/([^/]*)/([^/]*)/releases/download/([^/]*)/(.*)$",
         [
             # gh-proxy
+            r"https://github.akams.cn/\g<0>",
+            r"https://github.tbedu.top/\g<0>",
+            r"https://ghf.xn--eqrr82bzpe.top/\g<0>",
+            r"https://ghfile.geekertao.top/\g<0>",
+            r"https://jiashu.1win.eu.org/\g<0>",
+            r"https://ghproxy.net/\g<0>",
+            r"https://gh-proxy.net/\g<0>",
+            r"https://j.1lin.dpdns.org/\g<0>",
+            r"https://j.1win.ggff.net/\g<0>",
+            r"https://gh.llkk.cc/\g<0>",
+            r"https://git.yylx.win/\g<0>",
+            r"https://tvv.tw/\g<0>",
+            r"https://github.kkproxy.dpdns.org/\g<0>",
+            r"https://gp-us.fyan.top/\g<0>",
+            r"https://gitproxy.127731.xyz/\g<0>",
+            r"https://ghproxy.fangkuai.fun/\g<0>",
+            r"https://github.cmsz.dpdns.org/\g<0>",
+            r"https://ghp.ml1.one/\g<0>",
+            r"https://www.imengying.eu.org/\g<0>",
+            r"https://ghproxy.vansour.top/\g<0>",
+            r"https://x.whereisdoge.work/\g<0>",
+            r"https://gh.catmak.name/\g<0>",
+            r"https://y.whereisdoge.work/\g<0>",
+            r"https://github.acmsz.top/\g<0>",
+            r"https://hub.gitmirror.com/\g<0>",
+            r"https://gh.dpik.top/\g<0>",
+            r"https://github.dpik.top/\g<0>",
+            r"https://gitproxy.click/\g<0>",
+            r"https://github.moeyy.xyz/\g<0>",
+            r"https://github.whrstudio.top/\g<0>",
+            r"https://github.proxy.class3.fun/\g<0>",
+            r"https://github-proxy.lixxing.top/\g<0>",
+            r"https://ghm.078465.xyz/\g<0>",
+            r"https://gh-deno.mocn.top/\g<0>",
+            r"https://github.kongkuang.top/\g<0>",
+            r"https://github-proxy.kongkuang.icu/\g<0>",
+            r"https://github.iomi.team/\g<0>",
+            r"https://github.3x25.com/\g<0>",
+            r"https://github.ur1.fun/\g<0>",
             r"https://ghp.ci/\g<0>",
             r"https://proxy.v2gh.com/\g<0>",
-            r"https://ghproxy.net/\g<0>",
-            r"https://cf.ghproxy.cc/\g<0>",
-            r"https://github.moeyy.xyz/\g<0>",
             r"https://ghps.cc/\g<0>",
             r"https://hub.gitmirror.com/\g<0>",
             r"https://gh.api.99988866.xyz/\g<0>",
@@ -70,11 +141,47 @@ PROXY_RULES = [
             r"https://jsd.onmicrosoft.cn/gh/\g<1>/\g<2>@\g<3>/\g<4>",
 
             # gh-proxy (may jump to jsDelivr)
+            r"https://github.akams.cn/\g<0>",
+            r"https://github.tbedu.top/\g<0>",
+            r"https://ghf.xn--eqrr82bzpe.top/\g<0>",
+            r"https://ghfile.geekertao.top/\g<0>",
+            r"https://jiashu.1win.eu.org/\g<0>",
+            r"https://ghproxy.net/\g<0>",
+            r"https://gh-proxy.net/\g<0>",
+            r"https://j.1lin.dpdns.org/\g<0>",
+            r"https://j.1win.ggff.net/\g<0>",
+            r"https://gh.llkk.cc/\g<0>",
+            r"https://git.yylx.win/\g<0>",
+            r"https://tvv.tw/\g<0>",
+            r"https://github.kkproxy.dpdns.org/\g<0>",
+            r"https://gp-us.fyan.top/\g<0>",
+            r"https://gitproxy.127731.xyz/\g<0>",
+            r"https://ghproxy.fangkuai.fun/\g<0>",
+            r"https://github.cmsz.dpdns.org/\g<0>",
+            r"https://ghp.ml1.one/\g<0>",
+            r"https://www.imengying.eu.org/\g<0>",
+            r"https://ghproxy.vansour.top/\g<0>",
+            r"https://x.whereisdoge.work/\g<0>",
+            r"https://gh.catmak.name/\g<0>",
+            r"https://y.whereisdoge.work/\g<0>",
+            r"https://github.acmsz.top/\g<0>",
+            r"https://hub.gitmirror.com/\g<0>",
+            r"https://gh.dpik.top/\g<0>",
+            r"https://github.dpik.top/\g<0>",
+            r"https://gitproxy.click/\g<0>",
+            r"https://github.moeyy.xyz/\g<0>",
+            r"https://github.whrstudio.top/\g<0>",
+            r"https://github.proxy.class3.fun/\g<0>",
+            r"https://github-proxy.lixxing.top/\g<0>",
+            r"https://ghm.078465.xyz/\g<0>",
+            r"https://gh-deno.mocn.top/\g<0>",
+            r"https://github.kongkuang.top/\g<0>",
+            r"https://github-proxy.kongkuang.icu/\g<0>",
+            r"https://github.iomi.team/\g<0>",
+            r"https://github.3x25.com/\g<0>",
+            r"https://github.ur1.fun/\g<0>",
             r"https://ghp.ci/\g<0>",
             r"https://proxy.v2gh.com/\g<0>",
-            r"https://ghproxy.net/\g<0>",
-            r"https://cf.ghproxy.cc/\g<0>",
-            r"https://github.moeyy.xyz/\g<0>",
             r"https://ghps.cc/\g<0>",
             r"https://hub.gitmirror.com/\g<0>",
             r"https://gh.api.99988866.xyz/\g<0>",
@@ -85,14 +192,64 @@ PROXY_RULES = [
         r"^https?://github.com/([^/]*)/([^/]*)/archive/(.*)$",
         [
             # gh-proxy
+            r"https://github.akams.cn/\g<0>",
+            r"https://github.tbedu.top/\g<0>",
+            r"https://ghf.xn--eqrr82bzpe.top/\g<0>",
+            r"https://ghfile.geekertao.top/\g<0>",
+            r"https://jiashu.1win.eu.org/\g<0>",
+            r"https://ghproxy.net/\g<0>",
+            r"https://gh-proxy.net/\g<0>",
+            r"https://j.1lin.dpdns.org/\g<0>",
+            r"https://j.1win.ggff.net/\g<0>",
+            r"https://gh.llkk.cc/\g<0>",
+            r"https://git.yylx.win/\g<0>",
+            r"https://tvv.tw/\g<0>",
+            r"https://github.kkproxy.dpdns.org/\g<0>",
+            r"https://gp-us.fyan.top/\g<0>",
+            r"https://gitproxy.127731.xyz/\g<0>",
+            r"https://ghproxy.fangkuai.fun/\g<0>",
+            r"https://github.cmsz.dpdns.org/\g<0>",
+            r"https://ghp.ml1.one/\g<0>",
+            r"https://www.imengying.eu.org/\g<0>",
+            r"https://ghproxy.vansour.top/\g<0>",
+            r"https://x.whereisdoge.work/\g<0>",
+            r"https://gh.catmak.name/\g<0>",
+            r"https://y.whereisdoge.work/\g<0>",
+            r"https://github.acmsz.top/\g<0>",
+            r"https://hub.gitmirror.com/\g<0>",
+            r"https://gh.dpik.top/\g<0>",
+            r"https://github.dpik.top/\g<0>",
+            r"https://gitproxy.click/\g<0>",
+            r"https://github.moeyy.xyz/\g<0>",
+            r"https://github.whrstudio.top/\g<0>",
+            r"https://github.proxy.class3.fun/\g<0>",
+            r"https://github-proxy.lixxing.top/\g<0>",
+            r"https://ghm.078465.xyz/\g<0>",
+            r"https://gh-deno.mocn.top/\g<0>",
+            r"https://github.kongkuang.top/\g<0>",
+            r"https://github-proxy.kongkuang.icu/\g<0>",
+            r"https://github.iomi.team/\g<0>",
+            r"https://github.3x25.com/\g<0>",
+            r"https://github.ur1.fun/\g<0>",
             r"https://ghp.ci/\g<0>",
             r"https://proxy.v2gh.com/\g<0>",
             r"https://ghproxy.net/\g<0>",
-            r"https://cf.ghproxy.cc/\g<0>",
-            r"https://github.moeyy.xyz/\g<0>",
             r"https://ghps.cc/\g<0>",
             r"https://hub.gitmirror.com/\g<0>",
             r"https://gh.api.99988866.xyz/\g<0>",
+        ]
+    ],
+    [
+        # api.github.com
+        r"^https?://api.github.com/(.*)$",
+        [
+            # gh-proxy
+            r"https://github.akams.cn/\g<0>",
+            r"https://gh.llkk.cc/\g<0>",
+            r"https://ghfile.geekertao.top/\g<0>",
+            r"https://gh.dpik.top/\g<0>",
+            r"https://github.dpik.top/\g<0>",
+            r"https://github.acmsz.top/\g<0>",
         ]
     ]
 ]
@@ -313,3 +470,41 @@ def get_process(pid: Optional[int] = None) -> Union[psutil.Process, None]:
         return psutil.Process(pid)
     except psutil.NoSuchProcess:
         return None
+
+def get_latest_github_release(repo: str, filename: str) -> Optional[str]:
+    """
+    Get the latest release download link for a file from a GitHub repository.
+    Returns the download URL if available, otherwise None.
+    """
+    def get_download_url(url: str, filename: str) -> Optional[str]:
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+            for asset in data.get('assets', []):
+                # if asset['name'] == filename:
+                if re.match(rf"^{re.escape(filename)}$", asset['name']):
+                    return asset['browser_download_url']
+        except requests.RequestException as e:
+            logger.error(f"Failed to fetch latest release: {e}")
+        return None
+
+    url = f"https://api.github.com/repos/{repo}/releases/latest"
+
+    # apply proxy
+    updated_urls = [url]
+    for rule in PROXY_RULES:
+        pattern, replacements = rule
+        if re.match(pattern, url):
+            for replacement in replacements:
+                updated_url = re.sub(pattern, replacement, url)
+                updated_urls.append(updated_url)
+            break
+
+    for url in updated_urls:
+        download_url = get_download_url(url, filename)
+        if download_url:
+            return download_url
+
+    logger.error(f"No download URL found for {filename} in {repo}")
+    return None

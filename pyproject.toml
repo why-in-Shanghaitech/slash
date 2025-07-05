@@ -4,8 +4,8 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "slash"
-version = "v0.0.1"
+name = "slash-py"
+version = "v0.0.1.dev2"
 dependencies = [
     'requests',
     'ruamel.yaml',
@@ -21,8 +21,12 @@ license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3 :: Only",
-    "Operating System :: Linux",
+    "Operating System :: POSIX :: Linux",
 ]
+
+[project.optional-dependencies]
+docs = ["sphinx", "myst-parser", "linkify-it-py", "sphinx-autodoc2", "furo"]
+test = ["pytest"]
 
 [project.urls]
 Homepage = "https://github.com/why-in-Shanghaitech/slash"

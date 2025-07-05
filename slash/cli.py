@@ -1,11 +1,12 @@
 import argparse
+import json
 import os
 import shlex
 import sys
 from pathlib import Path
 
 import slash.utils as utils
-from slash.core import initialize, shell
+from slash.core import CONFIG_PATH, initialize, shell
 from slash.slash import Slash
 
 
@@ -124,6 +125,33 @@ def get_parser():
 
     subparsers.add_parser('env', parents=[parser_env], help=parser_env.description, description=parser_env.description)
 
+
+    ## config subparsers
+    parser_env = argparse.ArgumentParser(add_help=False, description='Modify configuration values in .slashrc.')
+    subparsers_env = parser_env.add_subparsers(title='config_commands', dest='config_command', required=True, help=f"Config Subcommands. Modify configuration values in .slashrc. Writes to the user .slashrc file ({CONFIG_PATH}) by default.")
+
+    # slash config --show
+    parser_config_show = argparse.ArgumentParser(add_help=False, description='Display configuration values.')
+    subparsers_env.add_parser('show', parents=[parser_config_show], help=parser_config_show.description, description=parser_config_show.description)
+
+    # slash config --get
+    parser_config_get = argparse.ArgumentParser(add_help=False, description='Get a configuration value.')
+    parser_config_get.add_argument('KEY', help='Configuration key to get')
+    subparsers_env.add_parser('get', parents=[parser_config_get], help=parser_config_get.description, description=parser_config_get.description)
+
+    # slash config --set
+    parser_config_set = argparse.ArgumentParser(add_help=False, description='Set a boolean or string key.')
+    parser_config_set.add_argument('KEY', help='Configuration key to set')
+    parser_config_set.add_argument('VALUE', help='Configuration value to set')
+    subparsers_env.add_parser('set', parents=[parser_config_set], help=parser_config_set.description, description=parser_config_set.description)
+
+    # slash config --remove-key
+    parser_config_remove_key = argparse.ArgumentParser(add_help=False, description='Remove a configuration key (and all its values).')
+    parser_config_remove_key.add_argument('KEY', help='Configuration key to remove')
+    subparsers_env.add_parser('remove-key', parents=[parser_config_remove_key], help=parser_config_remove_key.description, description=parser_config_remove_key.description)
+
+    subparsers.add_parser('config', parents=[parser_env], help=parser_env.description, description=parser_env.description)
+
     return main_parser
 
 
@@ -159,6 +187,7 @@ def main(*args, **kwargs):
 
         elif args.shell_command == "activate":
             cur_env = os.environ.get("SLASH_ENV", None)
+            job = "__pid_{pid}_shell__".format(pid=args.shell_pid)
             scripts = [""]
 
             # Check if the environment is already activated
@@ -167,16 +196,22 @@ def main(*args, **kwargs):
 
             # Deactivate the current environment
             if cur_env is not None:
-                Slash(cur_env).stop("slash")
+                Slash(cur_env).stop(job)
                 scripts.append(shell.deactivate())
+                stash = os.environ.get("SLASH_STASH", None)
+                if stash is not None:
+                    stash = json.loads(stash)
             else:
-                if 'http_proxy' in os.environ or 'https_proxy' in os.environ:
-                    logger.warn("http_proxy is already set. It will be overwritten.")
+                envs = ["http_proxy", "https_proxy"]
+                stash = {env: os.environ[env] for env in envs if env in os.environ}
+                if stash:
+                    logger.warn("We notice that http_proxy is already set on your machine. It will be overwritten.")
+                else:
+                    stash = None
 
             # Activate the new environment
-            job = "__pid_{pid}_shell__".format(pid=args.shell_pid)
             service = Slash(args.name).launch(job)
-            scripts.append(shell.activate(args.name, service.port))
+            scripts.append(shell.activate(args.name, service.port, stash))
             print("\n".join(scripts))
 
         elif args.shell_command == "deactivate":
@@ -245,3 +280,19 @@ def main(*args, **kwargs):
                 else:
                     logger.info( "        Service: [red]Offline[/red]")
 
+    elif args.command == "config":
+
+        if args.config_command == "show":
+            Slash.config.show()
+
+        elif args.config_command == "get":
+            value = Slash.config.get(args.KEY)
+            logger.info(f"{args.KEY}: {value}")
+
+        elif args.config_command == "set":
+            Slash.config.set(args.KEY, args.VALUE)
+            logger.info(f"Set '{args.KEY}' to '{args.VALUE}'.")
+
+        elif args.config_command == "remove-key":
+            Slash.config.remove_key(args.KEY)
+            logger.info(f"Removed '{args.KEY}'.")
