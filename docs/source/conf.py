@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'slash'
-copyright = '2025, why'
-author = 'why'
-release = '0.0.1.dev'
+copyright = '2025, why-in-Shanghaitech'
+author = 'why-in-Shanghaitech'
+release = '0.0.1.dev2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -10,10 +10,10 @@ Simply run the following command to install the package.
 pip install slash-py
 ```
 
-If you want to install the nightly version, you can use the following command.
+The following command allows you to install the latest version directly from the GitHub repository, which is useful if you want to try the latest features or bug fixes that haven't been released yet.
 
 ```bash
-pip install git+https://github.com/why-in-Shanghaitech/slash.git@nightly
+pip install git+https://github.com/why-in-Shanghaitech/slash.git
 ```
 
 ## Uninstall

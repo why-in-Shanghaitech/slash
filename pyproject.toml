@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "slash-py"
-version = "v0.0.1.dev1"
+version = "v0.0.1.dev2"
 dependencies = [
     'requests',
     'ruamel.yaml',
