@@ -3,3 +3,4 @@ sphinx
 myst-parser
 linkify-it-py
 sphinx-autodoc2
+sphinxcontrib-autoprogram
