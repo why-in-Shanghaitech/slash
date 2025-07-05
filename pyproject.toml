@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-docs = ["sphinx", "myst-parser", "linkify-it-py", "sphinx-autodoc2", "furo", "sphinxcontrib-autoprogram"]
+docs = ["sphinx >= 7.4.7", "myst-parser", "linkify-it-py", "sphinx-autodoc2", "furo", "sphinxcontrib-autoprogram"]
 test = ["pytest"]
 
 [project.urls]
