@@ -54,6 +54,11 @@
     :parser: slash.docstrings
     :summary:
     ```
+* - {py:obj}`get_latest_github_release <slash.utils.get_latest_github_release>`
+  - ```{autodoc2-docstring} slash.utils.get_latest_github_release
+    :parser: slash.docstrings
+    :summary:
+    ```
 ````
 
 ### Data
@@ -267,6 +272,14 @@
 :canonical: slash.utils.get_process
 
 ```{autodoc2-docstring} slash.utils.get_process
+:parser: slash.docstrings
+```
+````
+
+````{py:function} get_latest_github_release(repo: str, filename: str) -> typing.Optional[str]
+:canonical: slash.utils.get_latest_github_release
+
+```{autodoc2-docstring} slash.utils.get_latest_github_release
 :parser: slash.docstrings
 ```
 ````

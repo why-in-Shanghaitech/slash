@@ -1,0 +1,5 @@
+furo==2024.8.6
+sphinx
+myst-parser
+linkify-it-py
+sphinx-autodoc2

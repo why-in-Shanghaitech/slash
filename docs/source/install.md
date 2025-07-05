@@ -7,7 +7,7 @@
 Simply run the following command to install the package.
 
 ```bash
-pip install git+https://github.com/why-in-Shanghaitech/slash.git
+pip install slash-py
 ```
 
 If you want to install the nightly version, you can use the following command.
@@ -16,18 +16,10 @@ If you want to install the nightly version, you can use the following command.
 pip install git+https://github.com/why-in-Shanghaitech/slash.git@nightly
 ```
 
-:::{tip}
-If you get a timeout error, use the GitHub proxy to install the package.
-
-```bash
-pip install git+https://ghproxy.net/https://github.com/why-in-Shanghaitech/slash.git
-```
-:::
-
 ## Uninstall
 
 To uninstall the package, run the following command.
 
 ```bash
-pip uninstall slash
+pip uninstall slash-py
 ```
