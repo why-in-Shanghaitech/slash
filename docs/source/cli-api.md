@@ -83,7 +83,11 @@ The arguments to pass to the command.
 Initialize the Slash environment.
 
 ```
-usage: slash init [-h]
+usage: slash init [-h] [--reverse]
+```
+
+```{option} --reverse
+Reverse the initialization process, removing Slash from the shell configuration file.
 ```
 
 ```{option} -h, --help

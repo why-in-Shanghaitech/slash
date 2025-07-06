@@ -17,7 +17,7 @@
 slash.core.initialize
 slash.core.config
 slash.core.constants
+slash.core.envs
 slash.core.service
 slash.core.shell
-slash.core.envs
 ```

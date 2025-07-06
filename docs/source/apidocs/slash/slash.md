@@ -23,8 +23,8 @@ slash.core
 :titlesonly:
 :maxdepth: 1
 
-slash.utils
-slash.daemon
 slash.cli
+slash.daemon
 slash.slash
+slash.utils
 ```

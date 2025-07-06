@@ -16,8 +16,13 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`initialize <slash.core.initialize.initialize>`
-  - ```{autodoc2-docstring} slash.core.initialize.initialize
+* - {py:obj}`shell_initialize <slash.core.initialize.shell_initialize>`
+  - ```{autodoc2-docstring} slash.core.initialize.shell_initialize
+    :parser: slash.docstrings
+    :summary:
+    ```
+* - {py:obj}`reversed_shell_initialize <slash.core.initialize.reversed_shell_initialize>`
+  - ```{autodoc2-docstring} slash.core.initialize.reversed_shell_initialize
     :parser: slash.docstrings
     :summary:
     ```
@@ -49,10 +54,18 @@
 
 ````
 
-````{py:function} initialize(slash_exe: pathlib.Path) -> bool
-:canonical: slash.core.initialize.initialize
+````{py:function} shell_initialize(slash_exe: pathlib.Path) -> bool
+:canonical: slash.core.initialize.shell_initialize
 
-```{autodoc2-docstring} slash.core.initialize.initialize
+```{autodoc2-docstring} slash.core.initialize.shell_initialize
+:parser: slash.docstrings
+```
+````
+
+````{py:function} reversed_shell_initialize(slash_exe: pathlib.Path) -> bool
+:canonical: slash.core.initialize.reversed_shell_initialize
+
+```{autodoc2-docstring} slash.core.initialize.reversed_shell_initialize
 :parser: slash.docstrings
 ```
 ````
