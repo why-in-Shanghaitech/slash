@@ -54,6 +54,7 @@ def get_parser():
 
     # slash init
     parser_init = argparse.ArgumentParser(add_help=False, description='Initialize the Slash environment')
+    parser_init.add_argument('--reverse', action='store_true', help='Reverse the initialization process, removing Slash from the shell configuration file')
     subparsers.add_parser('init', parents=[parser_init], help=parser_init.description, description=parser_init.description)
 
     # slash activate
@@ -164,7 +165,10 @@ def main(*args, **kwargs):
             os.system(shlex.join(args.args))
 
     elif args.command == "init":
-        initialize(slash_exe)
+        if args.reverse:
+            initialize.reversed_shell_initialize(slash_exe)
+        else:
+            initialize.shell_initialize(slash_exe)
 
     elif args.command == "activate":
         logger.error("You haven't run `slash init` yet. Run `slash init` first.")

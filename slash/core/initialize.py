@@ -7,7 +7,7 @@ import slash.utils as utils
 logger = utils.logger
 
 
-def initialize(slash_exe: Path) -> bool:
+def shell_initialize(slash_exe: Path) -> bool:
     """
     Initialize slash for the current user in the shell.
 
@@ -69,6 +69,55 @@ def initialize(slash_exe: Path) -> bool:
         rc_content = rc_content.replace(replace_str, slash_initialize_content)
     else:
         rc_content += f"\n{slash_initialize_content}\n"
+
+    with open(user_rc_path, "w") as fh:
+        fh.write(rc_content)
+
+    is_modified = rc_content != rc_original_content
+
+    if is_modified:
+        logger.info("{:<14}{}".format("modified", user_rc_path))
+        logger.info("==> For changes to take effect, close and re-open your current shell. <==")
+    else:
+        logger.info("{:<14}{}".format("no change", user_rc_path))
+        logger.info("No action taken.")
+
+    return is_modified
+
+def reversed_shell_initialize(slash_exe: Path) -> bool:
+    """
+    Reverse the initialization of slash in the current user's shell configuration file.
+
+    Arguments:
+        slash_exe: The path to the slash executable.
+
+    Returns:
+        is_modified: Whether the shell configuration file was modified.
+    """
+    SLASH_INITIALIZE_RE_BLOCK = (
+        r"^# >>> slash initialize >>>(?:\n|\r\n)"
+        r"([\s\S]*?)"
+        r"# <<< slash initialize <<<(?:\n|\r\n)?"
+    )
+
+    user_rc_path = Path.home() / ".bashrc"
+
+    try:
+        with open(user_rc_path) as fh:
+            rc_content = fh.read()
+    except FileNotFoundError:
+        rc_content = ""
+    except:
+        raise
+
+    rc_original_content = rc_content
+
+    rc_content = re.sub(
+        SLASH_INITIALIZE_RE_BLOCK,
+        "",
+        rc_content,
+        flags=re.MULTILINE,
+    )
 
     with open(user_rc_path, "w") as fh:
         fh.write(rc_content)
