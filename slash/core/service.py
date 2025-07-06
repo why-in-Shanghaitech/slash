@@ -108,7 +108,12 @@ class Service:
         """
         Check if the service is alive.
         """
-        return utils.get_process(self.pid) is not None
+        process = utils.get_process(self.pid)
+        return (
+            process is not None
+            and process.is_running()
+            and process.status() not in (psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD)
+        )
 
     def is_operational(self) -> bool:
         """
