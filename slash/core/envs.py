@@ -80,6 +80,13 @@ def convert(sub: Union[str, Path], tgt: Path) -> Path:
                     target=clash
                     insert=false
                     new_name=true
+                    emoji=true
+                    list=false
+                    tfo=false
+                    scv=true
+                    fdn=false
+                    expand=true
+                    sort=false
                     config=%(tpl_config)s
                     url=%(sub)s
                     """ % {"sub": str(sub), "tpl_config": str(tpl_config)}
@@ -322,8 +329,11 @@ class Env:
             return secret
 
         # set the UI
+        ui_folder = Path(ui_folder)
         if isinstance(ui_folder, Path):
             ui_folder = ui_folder.resolve()
+        # convert to path relative to home dir since mihomo uses strict safe check
+        ui_folder = Path("~") / ui_folder.relative_to(Path.home())
         config['external-ui'] = str(ui_folder)
         self._set_config(config)
 

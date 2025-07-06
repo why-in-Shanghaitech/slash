@@ -486,7 +486,7 @@ def get_latest_github_release(repo: str, filename: str) -> Optional[str]:
                 if re.match(rf"^{re.escape(filename)}$", asset['name']):
                     return asset['browser_download_url']
         except requests.RequestException as e:
-            logger.error(f"Failed to fetch latest release: {e}")
+            logger.warn(f"Failed to fetch latest release: {e}")
         return None
 
     url = f"https://api.github.com/repos/{repo}/releases/latest"
