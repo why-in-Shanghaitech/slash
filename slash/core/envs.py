@@ -332,9 +332,11 @@ class Env:
         ui_folder = Path(ui_folder)
         if isinstance(ui_folder, Path):
             ui_folder = ui_folder.resolve()
-        # convert to path relative to home dir since mihomo uses strict safe check
-        ui_folder = Path("~") / ui_folder.relative_to(Path.home())
-        config['external-ui'] = str(ui_folder)
+        link = self.workdir / "ui"
+        if link.exists():
+            link.unlink()
+        link.symlink_to(ui_folder, target_is_directory=True)
+        config['external-ui'] = str(link)
         self._set_config(config)
 
         return secret
