@@ -74,7 +74,7 @@ def get_parser():
 
     # slash remove
     parser_remove = argparse.ArgumentParser(add_help=False, description='Remove a Slash environment')
-    parser_remove.add_argument('-n', '--name', help='The name of the environment')
+    parser_remove.add_argument('-n', '--name', help='The name of the environment', required=True)
     subparsers.add_parser('remove', parents=[parser_remove], help=parser_remove.description, description=parser_remove.description)
 
 
