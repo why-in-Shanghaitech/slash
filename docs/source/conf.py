@@ -9,7 +9,7 @@
 project = 'slash'
 copyright = '2025, why-in-Shanghaitech'
 author = 'why-in-Shanghaitech'
-release = '0.0.1.dev2'
+release = '0.0.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
